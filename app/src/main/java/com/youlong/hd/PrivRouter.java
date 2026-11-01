@@ -33,10 +33,10 @@ public final class PrivRouter {
 
     public static int getSource(Context ctx) {
         try {
-            int v = prefs(ctx).getInt(KEY_SOURCE, SOURCE_AUTO);
-            return (v == SOURCE_BUILTIN || v == SOURCE_SHIZUKU) ? v : SOURCE_AUTO;
+            int v = prefs(ctx).getInt(KEY_SOURCE, SOURCE_SHIZUKU);
+            return (v == SOURCE_BUILTIN || v == SOURCE_SHIZUKU || v == SOURCE_AUTO) ? v : SOURCE_SHIZUKU;
         } catch (Throwable t) {
-            return SOURCE_AUTO;
+            return SOURCE_SHIZUKU;
         }
     }
 
@@ -98,15 +98,16 @@ public final class PrivRouter {
         boolean builtin = builtinAlive();
         boolean shizuku = shizukuAlive();
 
-        if (chosen == SOURCE_BUILTIN) {
-            return (builtin || !shizuku) ? SOURCE_BUILTIN : SOURCE_SHIZUKU;
-        }
         if (chosen == SOURCE_SHIZUKU) {
             return (shizuku || !builtin) ? SOURCE_SHIZUKU : SOURCE_BUILTIN;
         }
-        if (builtin) return SOURCE_BUILTIN;
+        if (chosen == SOURCE_BUILTIN) {
+            return (builtin || !shizuku) ? SOURCE_BUILTIN : SOURCE_SHIZUKU;
+        }
+        // AUTO: 优先系统 Shizuku
         if (shizuku) return SOURCE_SHIZUKU;
-        return SOURCE_BUILTIN;
+        if (builtin) return SOURCE_BUILTIN;
+        return SOURCE_SHIZUKU;
     }
 
     public static String activeName(Context ctx) {

@@ -171,6 +171,16 @@ public class PrivilegeActivity extends AppCompatActivity {
         mBtnShizukuAuth.setLayoutParams(shp);
         root.addView(mBtnShizukuAuth);
 
+        // 未安装 Shizuku 时点击状态文字直接跳转下载
+        mShizukuValue.setOnClickListener(v -> {
+            if (!ShizukuBackend.isManagerInstalled(this)) {
+                try {
+                    startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse("https://github.com/RikkaApps/Shizuku/releases")));
+                } catch (Exception ignored) {}
+            }
+        });
+
         mBtnTest = new Button(this);
         mBtnTest.setText("自检：跑一条特权命令");
         mBtnTest.setTextSize(16);
@@ -327,7 +337,7 @@ public class PrivilegeActivity extends AppCompatActivity {
                 } else if (shizukuInstalled) {
                     sb.append("已安装 Shizuku，未连接（打开 Shizuku 启动服务后回来刷新）");
                 } else {
-                    sb.append("未检测到 Shizuku / Sui（可用内置内核）");
+                    sb.append("未安装 Shizuku，点击此处下载");
                 }
                 if (externalAllowed) sb.append(" · 已允许外部投递");
                 mShizukuValue.setText(sb.toString());
@@ -337,9 +347,16 @@ public class PrivilegeActivity extends AppCompatActivity {
                 mBtnExternal.setText(externalAllowed
                         ? "禁止外部 Shizuku 投递（当前：已允许）"
                         : "允许外部 Shizuku 投递（当前：已禁止）");
-                mBtnShizukuAuth.setEnabled(shizukuAlive && !shizukuGranted);
-                mBtnShizukuAuth.setText(!shizukuAlive ? "申请 Shizuku 授权（未连接）"
-                        : shizukuGranted ? "Shizuku 已授权" : "申请 Shizuku 授权");
+                mBtnShizukuAuth.setEnabled(true);
+                if (!shizukuInstalled) {
+                    mBtnShizukuAuth.setText("下载安装 Shizuku");
+                } else if (!shizukuAlive) {
+                    mBtnShizukuAuth.setText("打开 Shizuku 启动服务");
+                } else if (shizukuGranted) {
+                    mBtnShizukuAuth.setText("Shizuku 已授权");
+                } else {
+                    mBtnShizukuAuth.setText("申请 Shizuku 授权");
+                }
             });
         }, "priv-refresh").start();
     }
@@ -375,10 +392,21 @@ public class PrivilegeActivity extends AppCompatActivity {
 
     
     private void onRequestShizukuPermission() {
+        if (!ShizukuBackend.isManagerInstalled(this)) {
+            try {
+                startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,
+                        android.net.Uri.parse("https://github.com/RikkaApps/Shizuku/releases")));
+            } catch (Exception e) {
+                mResultValue.setText("无法打开下载页，请手动安装 Shizuku");
+            }
+            return;
+        }
         if (!PrivRouter.shizukuAlive()) {
-            CrashLogger.event("[特权来源] Shizuku 未连接，无法申请授权");
-            mResultValue.setText("Shizuku 未连接：请先安装并启动 Shizuku（或 Sui），"
-                    + "然后回到本页点「重新连接特权服务」。");
+            try {
+                Intent launch = getPackageManager().getLaunchIntentForPackage(ShizukuBackend.PACKAGE_SHIZUKU);
+                if (launch != null) startActivity(launch);
+            } catch (Exception ignored) {}
+            mResultValue.setText("Shizuku 已安装但未启动，请在 Shizuku 应用中启动服务后回来");
             return;
         }
         ShizukuBackend.requestPermission(1002);
