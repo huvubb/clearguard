@@ -2016,6 +2016,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public class JavaScriptInterface {
+        @JavascriptInterface public String scanViruses() { return VirusScanner.scan(MainActivity.this); }
+        @JavascriptInterface public String getVirusScanStatus() { return VirusScanner.status(MainActivity.this); }
         @JavascriptInterface public void openActivation() { openNativeActivity(AdbPairActivity.class); }
         @JavascriptInterface public void openTerminal() { openNativeActivity(TerminalActivity.class); }
         @JavascriptInterface public void openNativeApps() { openNativeActivity(AppListActivity.class); }

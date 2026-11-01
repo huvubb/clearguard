@@ -41,7 +41,7 @@
 </section>
 <section class="page" id="apps" aria-label="应用">
 <div class="eyebrow">APPLICATIONS</div><h1>每个应用，心中有数。</h1><p class="intro">先了解风险，再决定如何处理。</p>
-<div class="toolbar"><button class="primary" data-result="scanDangerApps" data-title="应用风险扫描">扫描风险</button><button class="secondary" data-action="native-apps">应用管理</button></div>
+<div class="toolbar"><button class="primary" data-result="scanViruses" data-title="病毒特征扫描">扫描病毒</button><button class="secondary" data-result="getVirusScanStatus" data-title="病毒扫描能力与数据库状态">扫描库状态</button><button class="primary" data-result="scanDangerApps" data-title="应用风险扫描">扫描风险</button><button class="secondary" data-action="native-apps">应用管理</button></div>
 <div class="mini-grid"><button class="card mini" data-call="openBlacklistManager"><span class="mini-mark coral">−</span><strong>黑名单</strong><small>查看与编辑管控应用</small></button><button class="card mini" data-call="openWhitelistManager"><span class="mini-mark green">✓</span><strong>白名单</strong><small>你明确选择的信任应用</small></button></div>
 <label class="search"><svg><use href="#i-scan"/></svg><input id="app-search" type="search" placeholder="搜索名称或包名" aria-label="搜索应用"></label><div class="list-caption"><span>已安装应用</span><span id="app-count">—</span></div><div id="app-list" class="card app-list"><p class="hint">正在读取应用列表…</p></div>
 <div class="card"><h2>风险特征库</h2><div class="toolbar"><button class="secondary" data-result="getVirusDbStatus" data-title="特征库状态">查看状态</button><button class="secondary" data-call="refreshVirusDb">刷新特征库</button><button class="text-button" data-call="openBuiltinPrivilegeManager">特权与策略管理 ↗</button></div><p class="hint">开源分支不附带原作者的私有病毒库，状态以设备实际数据为准。</p></div>
