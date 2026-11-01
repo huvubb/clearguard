@@ -170,7 +170,7 @@
     <string name="already_latest_version">已是最新版本</string>
     <string name="check_update_failed">检查更新失败</string>
     <string name="project_declaration">项目声明与版权</string>
-    <string name="project_declaration_content">「游龙安全护盾」是独立维护的修改版，内置特权框架基于 Stellar（Mozilla Public License 2.0，Copyright roro2239 / RoRo Studio）修改而来，并包含 Stellar 内保留的 Shizuku 代码（Apache License 2.0，Copyright RikkaApps）。本产品不是 Stellar 或 Shizuku 的官方产品，与上述作者/组织不存在隶属、合作、代理或背书关系；“Stellar”“Shizuku”等名称、标识、商标归各自权利人所有，仅用于说明代码来源与兼容性。游龙自有代码、界面与文档：Copyright (C) 2026 游龙，Apache License 2.0。与本 APK 对应的源代码、Apache-2.0 / MPL-2.0 全文、COPYRIGHT.md、NOTICE 均随产品分发，可在应用内「开源许可」查看。早期版本曾结束第三方 Shizuku 服务进程，该行为自 V63 起已彻底移除；当前不再结束、冻结或强制停止第三方 Shizuku 服务。</string>
+    <string name="project_declaration_content">「澄盾 ClearGuard」是独立维护的修改版，内置特权框架基于 Stellar（Mozilla Public License 2.0，Copyright roro2239 / RoRo Studio）修改而来，并包含 Stellar 内保留的 Shizuku 代码（Apache License 2.0，Copyright RikkaApps）。本产品不是 Stellar 或 Shizuku 的官方产品，与上述作者/组织不存在隶属、合作、代理或背书关系；“Stellar”“Shizuku”等名称、标识、商标归各自权利人所有，仅用于说明代码来源与兼容性。游龙自有代码、界面与文档：Copyright (C) 2026 游龙，Apache License 2.0。与本 APK 对应的源代码、Apache-2.0 / MPL-2.0 全文、COPYRIGHT.md、NOTICE 均随产品分发，可在应用内「开源许可」查看。早期版本曾结束第三方 Shizuku 服务进程，该行为自 V63 起已彻底移除；当前不再结束、冻结或强制停止第三方 Shizuku 服务。</string>
     <string name="cannot_open_browser">无法打开浏览器</string>
     <string name="check_update">检查更新</string>
     <string name="current_version">当前版本: %s</string>

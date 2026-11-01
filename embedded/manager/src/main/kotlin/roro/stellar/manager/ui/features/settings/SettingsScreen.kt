@@ -499,7 +499,7 @@ fun SettingsScreen(
                         // （把 BootCompleteReceiver 置为 enabled，作为开机广播的跳板）。
                         //
                         // 本工程已把该无障碍服务从清单里删除：它在系统「无障碍」列表里
-                        // 与宿主自己的 AdSkipService 同名（都显示「游龙安全护盾」），
+                        // 与宿主自己的 AdSkipService 同名（都显示「澄盾 ClearGuard」），
                         // 实测出现两个条目，用户无法分辨该开哪个；而宿主开机自启本来就由
                         // 自己的 com.youlong.hd.BootReceiver 负责。
                         //

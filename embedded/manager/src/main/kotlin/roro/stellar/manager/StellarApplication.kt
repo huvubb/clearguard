@@ -5,7 +5,7 @@
 // 【本工程修改声明】—— 按 MPL-2.0 第 3.4 条标注
 //   上游的 manager 是独立 APK，自己声明 android:name=".StellarApplication"，
 //   系统启动时自动构造该类并调用 onCreate()。本工程把管理器内置进
-//   「游龙安全护盾」，宿主 Application 是 com.youlong.hd.YouLongApp（清单合并
+//   「澄盾 ClearGuard」，宿主 Application 是 com.youlong.hd.YouLongApp（清单合并
 //   以主模块为准），StellarApplication 因此**不会**被系统实例化，
 //   它原来在 onCreate() 里做的初始化也就不会发生。
 //

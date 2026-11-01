@@ -252,7 +252,7 @@ public final class CrashLogger {
     // ==================================================================
 
     private static void header(StringBuilder sb, String kind) {
-        sb.append("========== 游龙安全护盾 ").append(kind).append(" ==========\n");
+        sb.append("========== 澄盾 ClearGuard ").append(kind).append(" ==========\n");
         sb.append("时间: ").append(now()).append('\n');
         Application app = sApp;
         if (app != null) {
@@ -340,11 +340,11 @@ public final class CrashLogger {
             String old = readFile(f, 256 * 1024);
             String merged = text + "\n\n" + old;
             
-            String[] parts = merged.split("========== 游龙安全护盾 崩溃 ==========");
+            String[] parts = merged.split("========== 澄盾 ClearGuard 崩溃 ==========");
             StringBuilder sb = new StringBuilder(parts.length * 64);
             int kept = 0;
             for (int i = 1; i < parts.length && kept < MAX_HISTORY; i++, kept++) {
-                sb.append("========== 游龙安全护盾 崩溃 ==========").append(parts[i]);
+                sb.append("========== 澄盾 ClearGuard 崩溃 ==========").append(parts[i]);
             }
             writeFile(f, sb.toString());
         } catch (Throwable tr) {

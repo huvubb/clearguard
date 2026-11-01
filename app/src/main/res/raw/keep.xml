@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  资源压缩白名单（游龙安全护盾）
+  资源压缩白名单（澄盾 ClearGuard）
 
   app/build.gradle 里开了 `shrinkResources true`，资源压缩器会删掉所有
   「没有被代码或 XML 引用」的资源。open_source_licenses.txt 只在运行时由

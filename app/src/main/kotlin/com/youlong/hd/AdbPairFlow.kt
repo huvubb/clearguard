@@ -29,7 +29,7 @@ object AdbPairFlow {
     
     @SuppressLint("NewApi")
     fun pair(port: Int, code: String): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || port !in 1..65535 || !code.matches(Regex("[0-9]{6}"))) return false
         return AdbPairingClient("127.0.0.1", port, code, adbKey()).use { client ->
             client.start()
         }
@@ -37,6 +37,7 @@ object AdbPairFlow {
 
     
     fun grantSecureSettings(port: Int, pkg: String, onOutput: (String) -> Unit) {
+        require(PkgGuard.isValid(pkg) && port in 1..65535) { "Invalid package or port" }
         AdbClient("127.0.0.1", port, adbKey()).use { client ->
             client.connect()
             client.shellCommand("pm grant $pkg android.permission.WRITE_SECURE_SETTINGS") { out ->
@@ -82,6 +83,19 @@ object AdbPairFlow {
     }
 
     
+    suspend fun reconnect(context: Context, onStatus: (String) -> Unit): Boolean {
+        if (roro.stellar.Stellar.pingBinder()) return true
+        val saved = StellarSettings.getPreferences().getInt("clearguard_last_adb_port", -1)
+        val system = systemPort()
+        for (port in listOf(saved, system).filter { it in 1..65535 }.distinct()) {
+            onStatus("正在连接已授权端口：$port")
+            if (AdbStarter.startAdb("127.0.0.1", port, 1)) return true
+        }
+        onStatus("正在发现无线调试连接端口…")
+        val discovered = discover(context, AdbMdns.TLS_CONNECT, 8_000L, onStatus) ?: return false
+        return AdbStarter.startAdb("127.0.0.1", discovered, 2)
+    }
+
     suspend fun startService(port: Int): Boolean =
         AdbStarter.startAdb("127.0.0.1", port)
 

@@ -92,8 +92,16 @@ let m;
 while ((m = scriptRe.exec(html)) !== null) {
     if (m[1].trim().length > 0) inlineBlocks.push(m[1]);
 }
+for (const match of html.matchAll(/<script[^>]*\bsrc="([^"]+)"[^>]*>/g)) {
+    const file = path.resolve(ASSETS_DIR, match[1]);
+    if (!file.startsWith(ASSETS_DIR + path.sep) || !fs.existsSync(file)) {
+        bad('js-source', match[1]);
+    } else {
+        inlineBlocks.push(fs.readFileSync(file, 'utf8'));
+    }
+}
 if (inlineBlocks.length === 0) {
-    bad('js-blocks', 'no inline <script> blocks found');
+    bad('js-blocks', 'no script sources found');
 }
 inlineBlocks.forEach((block, i) => {
     const tmp = path.join(os.tmpdir(), 'assets_check_' + i + '.js');
@@ -120,7 +128,7 @@ const definedIds = new Set();
 for (const d of html.matchAll(/\sid="([^"]+)"/g)) definedIds.add(d[1]);
 const referencedIds = new Set();
 for (const block of inlineBlocks) {
-    for (const r of block.matchAll(/\$\('([A-Za-z0-9_]+)'\)/g)) {
+    for (const r of block.matchAll(/\$\('([A-Za-z0-9_-]+)'\)/g)) {
         referencedIds.add(r[1]);
     }
 }

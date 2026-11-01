@@ -81,9 +81,9 @@
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_clearguard"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/ic_clearguard"
         android:supportsRtl="true"
         android:theme="@style/Theme.YouLongTool"
         android:usesCleartextTraffic="true"
@@ -339,6 +339,9 @@
             android:name="moe.shizuku.client.V3_SUPPORT"
             android:value="true" />
 
+        <activity android:name=".TerminalActivity" android:exported="false" android:label="澄盾终端" />
+        <activity android:name=".RuntimeLogActivity" android:exported="false" android:label="运行日志" />
+        <activity android:name=".WhitelistPickerActivity" android:exported="false" android:label="选择信任应用" />
     </application>
 
 </manifest>

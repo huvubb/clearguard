@@ -1350,6 +1350,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String lower = fileName.toLowerCase();
         if (lower.endsWith(".html") || lower.endsWith(".htm")) return "text/html";
         if (lower.endsWith(".css")) return "text/css";
+        if (lower.endsWith(".svg")) return "image/svg+xml";
         if (lower.endsWith(".js")) return "application/javascript";
         if (lower.endsWith(".json")) return "application/json";
         if (lower.endsWith(".png")) return "image/png";
@@ -2010,7 +2011,39 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         file.delete();
     }
 
+    private void openNativeActivity(Class<?> activity) {
+        runOnUiThread(() -> startActivity(new Intent(MainActivity.this, activity)));
+    }
+
     public class JavaScriptInterface {
+        @JavascriptInterface public void openActivation() { openNativeActivity(AdbPairActivity.class); }
+        @JavascriptInterface public void openTerminal() { openNativeActivity(TerminalActivity.class); }
+        @JavascriptInterface public void openNativeApps() { openNativeActivity(AppListActivity.class); }
+        @JavascriptInterface public void openRuntimeLogs() { openNativeActivity(RuntimeLogActivity.class); }
+        @JavascriptInterface public String getActivationStatus() {
+            org.json.JSONObject state = new org.json.JSONObject();
+            try {
+                state.put("ready", PrivRouter.isAnyAlive(MainActivity.this) && PrivRouter.hasPermission(MainActivity.this));
+                state.put("summary", PrivRouter.describe(MainActivity.this));
+                state.put("source", PrivRouter.getSource(MainActivity.this));
+                state.put("externalAllowed", PrivRouter.isExternalShizukuAllowed(MainActivity.this));
+                state.put("version", "ClearGuard " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+            } catch (Exception ignored) {}
+            return state.toString();
+        }
+        @JavascriptInterface public void configurePrivilegeSource(int source, boolean externalAllowed) {
+            if (source < 0 || source > 2) throw new IllegalArgumentException("Invalid privilege source");
+            PrivRouter.setSource(MainActivity.this, source);
+            PrivRouter.setExternalShizukuAllowed(MainActivity.this, externalAllowed);
+        }
+        @JavascriptInterface public void requestSelectedPrivilege() {
+            runOnUiThread(() -> {
+                if (PrivRouter.activeSource(MainActivity.this) == PrivRouter.SOURCE_SHIZUKU) ShizukuBackend.requestPermission(1001);
+                else if (PrivRouter.builtinAlive()) Stellar.INSTANCE.requestPermission("stellar", 1001);
+                else startActivity(new Intent(MainActivity.this, AdbPairActivity.class));
+            });
+        }
+
         @JavascriptInterface
         public void vibrate(int milliseconds) {
             if (vibrator != null) {

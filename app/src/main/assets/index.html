@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#f5f7f2"><title>澄盾 ClearGuard</title>
+<link rel="stylesheet" href="app.css"><script defer src="app.js"></script>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8 12l3 3 5-6"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+<symbol id="i-tools" viewBox="0 0 24 24"><path d="m14 6 4 4M4 20l8-8M16 3a6 6 0 0 0-7 8L3 17a3 3 0 0 0 4 4l6-6a6 6 0 0 0 8-7l-5 3-3-3z"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="m13 2-8 12h6l-1 8 9-13h-6z"/></symbol>
+<symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m7 9 3 3-3 3m6 0h4"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 8V3h5m8 0h5v5M3 16v5h5m8 0h5v-5M3 12h18"/></symbol>
+<symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 12h4l3-8 6 16 3-8h4"/></symbol>
+<symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 3c-12-1-18 6-14 12 6 6 14 0 14-12ZM4 21 16 8"/></symbol>
+</defs></svg>
+<div class="app-shell">
+<header class="topbar"><a class="brand" href="#overview" aria-label="澄盾首页"><img src="logo.svg" alt="" width="36" height="36"><span>澄盾<small>CLEARGUARD</small></span></a><button class="icon-button" data-action="refresh" aria-label="刷新状态"><svg><use href="#i-wave"/></svg></button></header>
+<main>
+<section class="page active" id="overview" aria-label="总览">
+<div class="eyebrow">YOUR DIGITAL PEACE OF MIND</div><h1>安心，从清晰开始。</h1><p class="intro">看得见的状态，掌握在你手中的保护。</p>
+<div class="hero"><div class="hero-text"><span class="pill" id="protection-pill">正在读取设备状态</span><h2 id="protection-title">你的设备，<br>由你守护。</h2><p id="protection-description">开启守护前，请完成必要授权。</p><button class="primary" id="protection-toggle" data-action="toggle-protect">开启守护 <span>↗</span></button></div><div class="hero-emblem"><img src="logo.svg" alt="澄盾护盾" width="140" height="140"><span class="orbit one"></span><span class="orbit two"></span></div></div>
+<div class="stats"><div><span class="dot" id="priv-dot"></span><small>特权服务</small><strong id="priv-state">检测中</strong></div><div><svg><use href="#i-eye"/></svg><small>无障碍</small><strong id="acc-state">检测中</strong></div><div><svg><use href="#i-wave"/></svg><small>持续守护</small><strong id="duration">—</strong></div></div>
+<div class="section-heading"><h2>常用入口</h2><span>QUICK ACCESS</span></div>
+<div class="quick-grid"><button data-tab="protect"><svg><use href="#i-shield"/></svg><strong>守护策略</strong><small>拦截 · 逃生 · 广告跳过</small></button><button data-action="activate"><svg><use href="#i-bolt"/></svg><strong>激活特权</strong><small>无线配对 · Shizuku</small></button><button data-tab="apps"><svg><use href="#i-grid"/></svg><strong>应用治理</strong><small>扫描 · 冻结 · 黑白名单</small></button><button data-action="terminal"><svg><use href="#i-terminal"/></svg><strong>原生终端</strong><small>在设备上安全执行命令</small></button></div>
+<div class="note"><svg><use href="#i-leaf"/></svg><div><strong>少一点打扰，多一份掌控</strong><p>只在需要时授权；你可以随时在设置中查看和收回权限。</p></div></div>
+</section>
+<section class="page" id="protect" aria-label="守护">
+<div class="eyebrow">PROTECTION</div><h1>保护，有自己的尺度。</h1><p class="intro">保留每一种拦截能力，由你选择适合的方式。</p>
+<div class="card"><div class="card-title"><svg><use href="#i-shield"/></svg><h2>拦截强度</h2></div><div class="mode-grid" id="modes"></div><p class="hint">高强度模式可能停止、冻结或卸载应用，操作前请检查白名单。</p></div>
+<div class="card"><h2>紧急逃生</h2><div id="trigger-settings"></div><button class="secondary full" data-action="rescue">打开紧急救援</button></div>
+<div class="card"><h2>广告跳过</h2><p class="hint">依赖已开启的无障碍服务；可配置监控应用、排除应用和关键词。</p><label class="switch-row"><span>启用广告跳过</span><input type="checkbox" id="ad-enabled" role="switch"></label><label>跳过关键词 <input id="ad-keywords" placeholder="跳过,跳过广告" maxlength="500"></label><label>只监控这些包名（留空表示全部）<textarea id="ad-monitor" rows="2" placeholder="com.example.app"></textarea></label><label>排除这些包名<textarea id="ad-exclude" rows="2" placeholder="多个包名以逗号分隔"></textarea></label><button class="secondary full" data-action="save-ad">保存广告跳过配置</button><button class="text-button" data-result="getAdSkipStats" data-title="广告跳过统计">查看跳过统计 ↗</button></div>
+<div class="card"><h2>拦截记录</h2><button class="row-button" data-result="getDangerScanCache" data-title="上次风险扫描"><span>上次风险扫描结果</span><svg><use href="#i-arrow"/></svg></button><button class="row-button" data-result="getBlockHistory" data-title="拦截历史"><span>查看拦截历史</span><svg><use href="#i-arrow"/></svg></button><button class="row-button" data-result="getBlacklistStatus" data-title="管控状态"><span>管控应用状态</span><svg><use href="#i-arrow"/></svg></button></div>
+</section>
+<section class="page" id="apps" aria-label="应用">
+<div class="eyebrow">APPLICATIONS</div><h1>每个应用，心中有数。</h1><p class="intro">先了解风险，再决定如何处理。</p>
+<div class="toolbar"><button class="primary" data-result="scanDangerApps" data-title="应用风险扫描">扫描风险</button><button class="secondary" data-action="native-apps">应用管理</button></div>
+<div class="mini-grid"><button class="card mini" data-call="openBlacklistManager"><span class="mini-mark coral">−</span><strong>黑名单</strong><small>查看与编辑管控应用</small></button><button class="card mini" data-call="openWhitelistManager"><span class="mini-mark green">✓</span><strong>白名单</strong><small>你明确选择的信任应用</small></button></div>
+<label class="search"><svg><use href="#i-scan"/></svg><input id="app-search" type="search" placeholder="搜索名称或包名" aria-label="搜索应用"></label><div class="list-caption"><span>已安装应用</span><span id="app-count">—</span></div><div id="app-list" class="card app-list"><p class="hint">正在读取应用列表…</p></div>
+<div class="card"><h2>风险特征库</h2><div class="toolbar"><button class="secondary" data-result="getVirusDbStatus" data-title="特征库状态">查看状态</button><button class="secondary" data-call="refreshVirusDb">刷新特征库</button><button class="text-button" data-call="openBuiltinPrivilegeManager">特权与策略管理 ↗</button></div><p class="hint">开源分支不附带原作者的私有病毒库，状态以设备实际数据为准。</p></div>
+<button class="text-button danger" data-action="trust-all">将当前所有应用加入信任列表</button>
+</section>
+<section class="page" id="tools" aria-label="工具">
+<div class="eyebrow">TOOLBOX</div><h1>顺手，也有分寸。</h1><p class="intro">清理、显示调节与设备状态，集中在这里。</p>
+<div class="card"><div class="card-title"><svg><use href="#i-leaf"/></svg><h2>存储与后台</h2></div><div class="toolbar"><button class="secondary" data-result="scanAllJunk" data-title="垃圾扫描">扫描垃圾</button><button class="secondary" data-action="deep-clean">深度清理</button><button class="secondary" data-call="openStorageSettings">存储设置</button><button class="secondary" data-native="cleanBackground">清理后台</button></div></div>
+<div class="card"><div class="card-title"><svg><use href="#i-eye"/></svg><h2>屏幕与色彩</h2></div><div class="toolbar"><button class="secondary" data-native="startFilterService">启用滤镜</button><button class="secondary" data-native="stopFilterService">停止滤镜</button><button class="text-button" data-native="openWriteSettings">系统亮度权限 ↗</button></div><div id="filter-settings"></div><div class="toolbar"><button class="chip" data-preset="0">标准清晰</button><button class="chip" data-preset="1">冷色高清</button><button class="chip" data-native="setStandardMode">标准色彩</button><button class="chip" data-native="setVividMode">鲜艳色彩</button></div></div>
+<div class="card"><div class="card-title"><svg><use href="#i-bolt"/></svg><h2>性能与帧率</h2></div><div class="toolbar"><button class="secondary" data-native="startPerformanceMode">开启性能模式</button><button class="secondary" data-native="stopPerformanceMode">关闭性能模式</button><button class="secondary" data-native="startFpsMonitor">显示帧率悬浮窗</button><button class="secondary" data-native="stopFpsMonitor">关闭帧率悬浮窗</button></div><p class="hint">性能模式会尝试使用高刷新率和亮度，实际效果受设备与系统限制。</p><label>系统屏幕亮度<input type="range" min="1" max="255" value="128" id="system-brightness"></label><label>刷新率<select id="refresh-rate"><option value="0">系统默认</option><option value="120">120 Hz</option></select></label><label>渲染策略<select id="render-mode"><option value="normal">系统默认</option><option value="save">优化模式</option></select></label><div class="device-facts" id="device-facts">—</div></div>
+<div class="card"><h2>更多能力</h2><button class="row-button" data-action="terminal"><span>原生 shell 终端</span><svg><use href="#i-terminal"/></svg></button><button class="row-button" data-call="launchOrInstallPetApp"><span>桌面宠物联动</span><svg><use href="#i-arrow"/></svg></button><button class="row-button" data-result="getSensorData" data-title="传感器数据"><span>传感器状态</span><svg><use href="#i-wave"/></svg></button></div>
+</section>
+<section class="page" id="settings" aria-label="设置">
+<div class="eyebrow">SETTINGS & PRIVILEGES</div><h1>所有权限，都有来处。</h1><p class="intro">先连接服务，再明确授权；状态就绪后才显示成功。</p>
+<div class="card privilege-card"><div class="card-title"><svg><use href="#i-bolt"/></svg><h2>特权连接</h2></div><p id="activation-status">正在读取服务状态…</p><div class="toolbar"><button class="primary" data-action="activate">无线调试激活</button><button class="secondary" data-call="openBuiltinPrivilegeManager">内置特权管理</button><button class="secondary" data-call="connectEmbeddedStellar">重新连接</button></div><label>特权来源<select id="priv-source"><option value="0">自动选择</option><option value="1">内置内核</option><option value="2">外部 Shizuku</option></select></label><label class="switch-row"><span>允许外部 Shizuku 接入<small>需要系统中安装可信 Shizuku 管理器</small></span><input type="checkbox" id="external-shizuku" role="switch"></label><button class="secondary full" data-action="save-source">保存特权来源</button><button class="text-button" data-action="request-privilege">申请所选服务授权 ↗</button></div>
+<div class="card"><h2>系统权限</h2><div id="permissions"></div></div>
+<div class="card"><h2>偏好</h2><label class="switch-row"><span>从最近任务中隐藏</span><input type="checkbox" id="hide-recents" role="switch"></label><label>外观<select id="appearance"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label></div>
+<div class="card"><h2>诊断与记录</h2><div class="toolbar"><button class="secondary" data-result="getDiagnostics" data-title="运行诊断">运行诊断</button><button class="secondary" data-call="copyDiagnostics">复制诊断</button><button class="secondary" data-action="runtime-logs">完整日志</button><button class="secondary" data-call="copyCrashLog">复制崩溃日志</button><button class="text-button danger" data-action="clear-crash">清空崩溃日志</button></div><details><summary>环境检测</summary><button class="text-button" data-result="getRootDiagnostics" data-title="Root 环境">Root 检测 ↗</button><button class="text-button" data-result="getEnvironmentWarning" data-title="运行环境">运行环境 ↗</button></details></div>
+<div class="about"><img src="logo.svg" width="46" height="46" alt="澄盾图标"><h2>澄盾 ClearGuard</h2><p>清晰可控的 Android 安全工具</p><small id="version">1.0.0</small><div class="toolbar"><a href="https://github.com/huvubb/youlong-security">源码与反馈 ↗</a><button class="text-button" data-call="openSourceLicenses">开源许可 ↗</button></div><small>基于 YouLong Security 与 Stellar 开源项目重构<br>AGPL-3.0 / MPL-2.0 / Apache-2.0</small></div>
+</section>
+</main>
+<nav class="bottom-nav" aria-label="主导航"><button data-tab="overview" class="selected" aria-current="page"><svg><use href="#i-home"/></svg><span>总览</span></button><button data-tab="protect"><svg><use href="#i-shield"/></svg><span>守护</span></button><button data-tab="apps"><svg><use href="#i-grid"/></svg><span>应用</span></button><button data-tab="tools"><svg><use href="#i-tools"/></svg><span>工具</span></button><button data-tab="settings"><svg><use href="#i-settings"/></svg><span>设置</span></button></nav>
+</div>
+<div id="toast" role="status" aria-live="polite"></div><dialog id="result-dialog"><div class="dialog-heading"><h2 id="result-title">详情</h2><button class="icon-button" data-action="close-dialog" aria-label="关闭">×</button></div><pre id="result-body"></pre><button class="secondary full" data-action="copy-result">复制内容</button></dialog>
+</body></html>

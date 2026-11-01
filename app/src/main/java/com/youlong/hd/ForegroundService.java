@@ -114,7 +114,7 @@ public class ForegroundService extends Service {
         } catch (Exception ignored) {}
 
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("游龙安全护盾")
+                .setContentTitle("澄盾 ClearGuard")
                 .setContentText(protectOn ? ("已守护 " + duration) : "自动拦截运行中（未开启实时守护）")
                 .setSmallIcon(android.R.drawable.ic_menu_manage)
                 .setOngoing(true)
@@ -234,7 +234,7 @@ public class ForegroundService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel ch = new NotificationChannel(
                     CHANNEL_ID, "哨兵守护", NotificationManager.IMPORTANCE_MIN);
-            ch.setDescription("游龙安全护盾双进程守护哨兵");
+            ch.setDescription("澄盾 ClearGuard双进程守护哨兵");
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (nm != null) nm.createNotificationChannel(ch);
         }

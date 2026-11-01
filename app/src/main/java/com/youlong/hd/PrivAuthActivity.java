@@ -86,7 +86,7 @@ public class PrivAuthActivity extends Activity {
         root.addView(icon, ip);
 
         TextView title = new TextView(this);
-        title.setText("授权游龙安全护盾使用特权服务");
+        title.setText("授权澄盾 ClearGuard使用特权服务");
         title.setTextSize(19);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setTextColor(0xFF1C1C1E);

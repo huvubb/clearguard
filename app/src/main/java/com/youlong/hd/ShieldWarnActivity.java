@@ -182,7 +182,7 @@ public class ShieldWarnActivity extends Activity {
         if (isSuper) {
             warnTv.setText("通过 Shizuku 执行 am force-stop 强制停止应用\n如不操作将在10秒后自动执行");
         } else if (isExtreme) {
-            warnTv.setText("通过 Shizuku 获取全部第三方应用并逐个强制停止\n如不操作将在5秒后自动执行（自动跳过游龙安全护盾）");
+            warnTv.setText("通过 Shizuku 获取全部第三方应用并逐个强制停止\n如不操作将在5秒后自动执行（自动跳过澄盾 ClearGuard）");
         } else if (isVolumeRescue) {
             warnTv.setText("检测到三击音量键逃脱触发，是否立即卸载前台应用？\n如不操作将在7秒后自动卸载");
         } else {

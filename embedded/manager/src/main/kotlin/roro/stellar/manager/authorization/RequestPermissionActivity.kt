@@ -101,7 +101,7 @@ class RequestPermissionActivity : ComponentActivity() {
         }
     }
 
-    /** 读取本应用（游龙安全护盾）的启动图标；失败返回 null，由弹窗退回盾牌占位。 */
+    /** 读取本应用（澄盾 ClearGuard）的启动图标；失败返回 null，由弹窗退回盾牌占位。 */
     private fun loadSelfIcon(): ImageBitmap? {
         return try {
             val drawable = applicationInfo?.loadIcon(packageManager) ?: return null
@@ -176,7 +176,7 @@ class RequestPermissionActivity : ComponentActivity() {
         } catch (_: Exception) {
             ai.packageName
         }
-        // 2026-10 第 19 轮（用户澄清）：弹窗顶部固定使用本应用（游龙安全护盾）图标，
+        // 2026-10 第 19 轮（用户澄清）：弹窗顶部固定使用本应用（澄盾 ClearGuard）图标，
         // 不是申请权限的第三方应用图标；第三方信息只用文字展示。
         val appIcon = loadSelfIcon()
 

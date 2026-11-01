@@ -81,7 +81,7 @@ class AdbPairActivity : AppCompatActivity() {
 
     private fun buildContentView(): ScrollView {
         val scroll = ScrollView(this)
-        scroll.setBackgroundColor(0xFFF2F2F7.toInt())
+        scroll.setBackgroundColor(0xFFF5F7F2.toInt())
 
         val root = LinearLayout(this)
         root.orientation = LinearLayout.VERTICAL
@@ -91,13 +91,13 @@ class AdbPairActivity : AppCompatActivity() {
         val title = TextView(this)
         title.text = "无线调试配对"
         title.textSize = 24f
-        title.setTextColor(0xFF1C1C1E.toInt())
+        title.setTextColor(0xFF172D25.toInt())
         root.addView(title)
 
         val sub = TextView(this)
         sub.text = "免 root 启动特权服务（不需要电脑，也不需要安装任何第三方应用）"
         sub.textSize = 13f
-        sub.setTextColor(0xFF8E8E93.toInt())
+        sub.setTextColor(0xFF6C7B72.toInt())
         sub.setPadding(0, dp(6), 0, dp(16))
         root.addView(sub)
 
@@ -139,13 +139,27 @@ class AdbPairActivity : AppCompatActivity() {
         
         addButton(card, "悬浮窗配对（备用）", primary = false) { startOverlayPairing() }
         btnStart = addButton(card, "开始配对并启动特权服务", primary = true) { startFlow(pairOnly = false) }
+        addButton(card, "已配对，直接启动（无需重新配对）", primary = false) {
+            if (!busy) {
+                setBusy(true)
+                scope.launch {
+                    try {
+                        val ready = AdbPairFlow.reconnect(this@AdbPairActivity) { setStatus(it) }
+                        setStatus(if (ready) "特权服务已就绪" else "连接未成功，请保持无线调试开启，必要时重新配对")
+                    } catch (error: Exception) {
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        setStatus("连接失败：" + error.message)
+                    } finally { setBusy(false) }
+                }
+            }
+        }
         btnSearchPairPort = addButton(card, "自动搜索配对端口", primary = false) { autoSearchPairingPort() }
         btnTestOnly = addButton(card, "仅配对（不启动服务）", primary = false) { startFlow(pairOnly = true) }
 
         tvStatus = TextView(this)
         tvStatus.text = "状态：待开始"
         tvStatus.textSize = 14f
-        tvStatus.setTextColor(0xFF1C1C1E.toInt())
+        tvStatus.setTextColor(0xFF172D25.toInt())
         tvStatus.setPadding(0, dp(14), 0, 0)
         card.addView(tvStatus)
 
@@ -172,7 +186,7 @@ class AdbPairActivity : AppCompatActivity() {
         tip.text = "说明：配对只在系统「无线调试」开启期间有效；配对成功后，" +
 "系统会记住本应用的调试密钥，以后可直接启动特权服务。"
         tip.textSize = 12f
-        tip.setTextColor(0xFF8E8E93.toInt())
+        tip.setTextColor(0xFF6C7B72.toInt())
         tip.setPadding(0, dp(16), 0, 0)
         root.addView(tip)
 
@@ -202,7 +216,7 @@ class AdbPairActivity : AppCompatActivity() {
         btn.textSize = 16f
         if (primary) {
             btn.setTextColor(0xFFFFFFFF.toInt())
-            btn.setBackgroundColor(0xFF0A84FF.toInt())
+            btn.setBackgroundColor(0xFF246347.toInt())
         }
         btn.setOnClickListener { onClick() }
         val lp = LinearLayout.LayoutParams(

@@ -26,11 +26,15 @@ object AdbStarter {
      * 启动命令发不进去，最终表现为“等待服务启动超时”。
      */
     suspend fun startAdb(host: String, port: Int, maxRetries: Int = 5): Boolean {
+        if (Stellar.pingBinder()) return true
+        if (port !in 1..65535 || maxRetries !in 1..5) return false
         val key = AdbKey(PreferenceAdbKeyStore(StellarSettings.getPreferences()), "youlong")
         val (shouldChange, newPort) = AdbWirelessHelper().shouldChangePort(port)
 
         // 1. 先使用当前已授权端口启动
         if (startAt(host, port, key, maxRetries)) {
+            if (!waitForBinder(20_000L)) return false
+            StellarSettings.getPreferences().edit().putInt("clearguard_last_adb_port", port).apply()
             // 2. 服务起来后再切换自定义端口；失败也不影响已启动的服务
             if (shouldChange && newPort > 0) {
                 switchPortBestEffort(host, port, newPort, key)
@@ -65,6 +69,7 @@ object AdbStarter {
                 // shell stream 关闭是正常的（服务进程已 fork）
                 return true
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 Log.w(TAG, "ADB 启动尝试 ${attempt + 1}/$maxRetries 失败", e)
                 if (attempt < maxRetries - 1) {
                     delay(1000L * (1 shl attempt)) // 1s, 2s, 4s, 8s

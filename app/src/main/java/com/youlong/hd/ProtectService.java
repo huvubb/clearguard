@@ -698,7 +698,7 @@ public class ProtectService extends Service implements SensorEventListener {
             if (!overlayOk) {
                 Log.w(TAG, "权限降级：悬浮窗已丢失，覆盖层无法显示（触发时改为直接跳转本应用）");
                 h.post(() -> Toast.makeText(ProtectService.this,
-                        "悬浮窗权限已丢失：拦截弹窗将无法显示，触发时会直接跳转到游龙安全护盾",
+                        "悬浮窗权限已丢失：拦截弹窗将无法显示，触发时会直接跳转到澄盾 ClearGuard",
                         Toast.LENGTH_LONG).show());
             } else {
                 Log.i(TAG, "权限恢复：悬浮窗已重新开启");
@@ -710,7 +710,7 @@ public class ProtectService extends Service implements SensorEventListener {
         // 两个都没了 → 再补一句合并提示，别让用户漏看其中一条
         if (a11yChanged && overlayChanged && !a11yOk && !overlayOk) {
             h.post(() -> Toast.makeText(ProtectService.this,
-                    "无障碍与悬浮窗权限都已丢失：请摇动手机触发，触发后会直接跳转到游龙安全护盾",
+                    "无障碍与悬浮窗权限都已丢失：请摇动手机触发，触发后会直接跳转到澄盾 ClearGuard",
                     Toast.LENGTH_LONG).show());
         }
 
@@ -800,10 +800,10 @@ public class ProtectService extends Service implements SensorEventListener {
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, CH)
                 .setSmallIcon(android.R.drawable.ic_dialog_alert)
                 .setContentTitle("检测到威胁，需要你确认")
-                .setContentText("悬浮窗不可用，点此进入游龙安全护盾继续拦截")
+                .setContentText("悬浮窗不可用，点此进入澄盾 ClearGuard继续拦截")
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText("悬浮窗权限不可用，无法直接弹出拦截窗口。\n"
-                                + "点击本通知进入「游龙安全护盾」继续处理。\n触发原因：" + reason))
+                                + "点击本通知进入「澄盾 ClearGuard」继续处理。\n触发原因：" + reason))
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true)
@@ -1385,7 +1385,7 @@ public class ProtectService extends Service implements SensorEventListener {
 
         // 自己的包名 → 不拦截
         if ("com.youlong.hd".equals(fgPkg)) {
-            Log.i(TAG, "前台是游龙安全护盾自身，跳过");
+            Log.i(TAG, "前台是澄盾 ClearGuard自身，跳过");
             return;
         }
 
@@ -1552,7 +1552,7 @@ public class ProtectService extends Service implements SensorEventListener {
             if (isSuper) {
                 reasonTv.setText("通过 Shizuku 执行 am force-stop 强制停止应用\n如不操作将在10秒后自动执行");
             } else if (isExtreme) {
-                reasonTv.setText("通过 Shizuku 获取全部第三方应用并逐个强制停止\n如不操作将在5秒后自动执行（自动跳过游龙安全护盾）");
+                reasonTv.setText("通过 Shizuku 获取全部第三方应用并逐个强制停止\n如不操作将在5秒后自动执行（自动跳过澄盾 ClearGuard）");
             } else {
                 reasonTv.setText(pkgUnknown ? reason + " — 请手动选择要卸载的应用" : reason);
             }
@@ -1637,7 +1637,7 @@ public class ProtectService extends Service implements SensorEventListener {
                                 }
                                 Log.w(TAG, "极强拦截 pm list packages -3 结果长度: " + (listResult == null ? 0 : listResult.length()));
 
-                                // 第2步：解析包名，过滤游龙安全护盾 + 桌面宠物（三重保险之一）
+                                // 第2步：解析包名，过滤澄盾 ClearGuard + 桌面宠物（三重保险之一）
                                 final java.util.List<String> pkgs = new ArrayList<>();
                                 if (listResult != null) {
                                     String[] lines = listResult.split("\n");
@@ -2050,7 +2050,7 @@ public class ProtectService extends Service implements SensorEventListener {
     }
 
     // ===== 终结模式覆盖层 =====
-    // 流程：pm list packages → 串联 am force-stop（过滤游龙安全护盾）
+    // 流程：pm list packages → 串联 am force-stop（过滤澄盾 ClearGuard）
     //       → 全屏悬浮窗"请选择可疑应用，我们将强力清除他"
     //       → 用户勾选 → pm uninstall --user 0 串联卸载
     //       → 自动检测高危权限应用 → pm disable-user --user 0 串联冻结
@@ -2173,7 +2173,7 @@ public class ProtectService extends Service implements SensorEventListener {
         content.addView(statusTv);
 
         final TextView tipTv = new TextView(this);
-        tipTv.setText("正在终止所有系统应用\n（已自动保护游龙安全护盾）");
+        tipTv.setText("正在终止所有系统应用\n（已自动保护澄盾 ClearGuard）");
         tipTv.setTextColor(0xFFFFCCCC);
         tipTv.setTextSize(14);
         tipTv.setGravity(Gravity.CENTER);
@@ -2429,7 +2429,7 @@ public class ProtectService extends Service implements SensorEventListener {
     // ===== 终结模式：判断是否受保护包名（自己 + 桌面宠物），任何终结操作前都必须过滤 =====
     private boolean isProtectedFinalPkg(String name) {
         if (name == null || name.isEmpty()) return true;
-        if (name.equals(getPackageName())) return true;   // 游龙安全护盾自身
+        if (name.equals(getPackageName())) return true;   // 澄盾 ClearGuard自身
         if (name.equals("com.youlong.hd")) return true;  // 硬编码包名（双保险）
         // 白名单应用不终结（用户手动添加的白名单）
         if (isWhitelisted(name)) {
@@ -2509,7 +2509,7 @@ public class ProtectService extends Service implements SensorEventListener {
         content.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("已终结 " + stopCount + " 个应用（已排除游龙安全护盾，仍在循环终结中）\n请勾选可疑应用，高敏感权限应用优先");
+        sub.setText("已终结 " + stopCount + " 个应用（已排除澄盾 ClearGuard，仍在循环终结中）\n请勾选可疑应用，高敏感权限应用优先");
         sub.setTextColor(0xFFFFCC00);
         sub.setTextSize(14);
         sub.setGravity(Gravity.CENTER);
@@ -5558,8 +5558,8 @@ public class ProtectService extends Service implements SensorEventListener {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel ch = new NotificationChannel(
-                    CHANNEL_ID, "游龙安全护盾", NotificationManager.IMPORTANCE_DEFAULT);
-            ch.setDescription("游龙安全护盾正在后台守护中");
+                    CHANNEL_ID, "澄盾 ClearGuard", NotificationManager.IMPORTANCE_DEFAULT);
+            ch.setDescription("澄盾 ClearGuard正在后台守护中");
             ch.setShowBadge(false);
             nm.createNotificationChannel(ch);
 
@@ -5587,7 +5587,7 @@ public class ProtectService extends Service implements SensorEventListener {
         boolean guardOn = guardTriggerOn();
         String title;
         if (guardOn) {
-            title = "游龙安全护盾 · 守护中";
+            title = "澄盾 ClearGuard · 守护中";
             content = "已开启 " + duration + " · " + modeName;
             big.append("已开启守护：").append(duration)
                     .append("\n拦截模式：").append(modeName)

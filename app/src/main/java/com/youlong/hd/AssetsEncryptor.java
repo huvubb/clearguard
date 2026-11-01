@@ -11,7 +11,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * 游龙超级加密引擎 v4.0 - YouLong Super Encryption Engine
+ * 澄盾资源引擎 v4.0 - YouLong Super Encryption Engine
  * =======================================================
  * ✓ AES-256-GCM 认证加密（较 AES-CBC 更安全，自带完整性校验）
  * ✓ 签名绑定密钥（核心升级）：密钥 = KDF(硬编码种子 + 签名证书指纹)

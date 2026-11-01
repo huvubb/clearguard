@@ -5,12 +5,12 @@
   （MPL-2.0；其中源自 Shizuku 的部分为 Apache-2.0）
 
   【本工程修改声明】—— 按 MPL-2.0 第 3.4 条标注
-    改动：app_name 的值由 "Stellar" 改为 "游龙安全护盾"；并删除
+    改动：app_name 的值由 "Stellar" 改为 "澄盾 ClearGuard"；并删除
           values-ar / -es / -fr / -ja / -pt-rBR / -ru / -zh-rHK / -zh-rTW
           这 8 个文件里的同名条目。
 
     原因：上游 manager 是独立 APK，需要自己的应用名。本工程把它作为库模块并入
-          「游龙安全护盾」后，这些资源会**覆盖宿主 :app 的 app_name**：
+          「澄盾 ClearGuard」后，这些资源会**覆盖宿主 :app 的 app_name**：
           资源合并时库模块的同名资源默认优先于主模块，宿主又只在默认
           values/ 里定义了 app_name，于是所有「上游 manager 有、宿主没有」
           的语言（ar / es / fr / ja / pt / ru / zh-HK / zh-TW）下，
@@ -20,7 +20,7 @@
     为什么 values/（默认）这一条**保留而不是删除**：本文件是资源 fallback 链的
     末端，其它语言（en / de / it 等）解析 app_name 时会落到这里。把它也删掉会让
     这些语言找不到任何 `app_name`，应用名回落为空标签。因此改成宿主自己的名字，
-    使**所有**语言都得到「游龙安全护盾」。
+    使**所有**语言都得到「澄盾 ClearGuard」。
 
     该字符串在上游与本工程的全部 Kotlin / XML 代码中**均无任何引用**
     （已全量检索 R.string.app_name 与 @string/app_name），
@@ -29,7 +29,7 @@
 -->
 <resources>
 
-    <string name="app_name" translatable="false">游龙安全护盾</string>
+    <string name="app_name" translatable="false">澄盾 ClearGuard</string>
 
     <!-- Navigation -->
     <string name="nav_home">Start</string>

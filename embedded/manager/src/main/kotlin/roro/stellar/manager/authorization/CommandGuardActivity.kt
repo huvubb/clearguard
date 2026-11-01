@@ -1,5 +1,5 @@
 // ==========================================================================
-// 游龙安全护盾 —— 新增文件（非上游 Stellar 文件）
+// 澄盾 ClearGuard —— 新增文件（非上游 Stellar 文件）
 // --------------------------------------------------------------------------
 // 用途：命令安全拦截的用户界面。
 //
@@ -154,7 +154,7 @@ class CommandGuardActivity : ComponentActivity() {
         }, AUTO_DISMISS_MS)
 
         val appLabel = resolveAppLabel(packageName)
-        // 2026-10 第 19 轮（用户澄清）：弹窗顶部固定使用**本应用（游龙安全护盾）**
+        // 2026-10 第 19 轮（用户澄清）：弹窗顶部固定使用**本应用（澄盾 ClearGuard）**
         // 的软件图标，而不是被授权/调用方应用的图标。调用方信息只以文字展示。
         val appIcon = resolveSelfIcon()
 
@@ -257,7 +257,7 @@ class CommandGuardActivity : ComponentActivity() {
     }
 
     /**
-     * 本应用（游龙安全护盾）的启动图标，用作弹窗顶部标识。
+     * 本应用（澄盾 ClearGuard）的启动图标，用作弹窗顶部标识。
      *
      * 不能用 R.mipmap.ic_launcher：启动图标在 :app 模块里，:manager 库模块
      * 编译期看不到宿主的 mipmap 资源表。改为运行时通过 PackageManager
@@ -481,9 +481,9 @@ fun CommandGuardAlertDialog(
                 }
 
                 Text(
-                    // 2026-10 第 19 轮：统一为「游龙安全护盾已阻止此威胁」，
+                    // 2026-10 第 19 轮：统一为「澄盾 ClearGuard已阻止此威胁」，
                     // 不再使用「游龙工具」这一旧称呼。
-                    text = "游龙安全护盾已阻止此威胁",
+                    text = "澄盾 ClearGuard已阻止此威胁",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -647,7 +647,7 @@ fun CommandGuardConfirmDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // 顶部标识：本应用（游龙安全护盾）图标
+                // 顶部标识：本应用（澄盾 ClearGuard）图标
                 if (appIcon != null) {
                     Image(
                         bitmap = appIcon,

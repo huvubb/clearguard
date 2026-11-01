@@ -28,9 +28,9 @@
     <string name="abc_shareactionprovider_share_with_application">Share with %s</string>
     <string name="abc_toolbar_collapse_description">Collapse</string>
     <string name="androidx_startup">androidx.startup</string>
-    <string name="app_name">游龙安全护盾</string>
-    <string name="accessibility_service_description">游龙安全护盾无障碍服务：用于识别前台应用、音量键紧急逃生和广告自动跳过。开启后音量键/前台检测等紧急逃生功能才能生效。</string>
-    <string name="protect_accessibility_description">游龙安全护盾无障碍服务，用于实时监控并拦截锁屏勒索病毒、恶意设备管理器激活等危险行为，保障设备安全</string>
+    <string name="app_name">澄盾 ClearGuard</string>
+    <string name="accessibility_service_description">澄盾 ClearGuard无障碍服务：用于识别前台应用、音量键紧急逃生和广告自动跳过。开启后音量键/前台检测等紧急逃生功能才能生效。</string>
+    <string name="protect_accessibility_description">澄盾 ClearGuard无障碍服务，用于实时监控并拦截锁屏勒索病毒、恶意设备管理器激活等危险行为，保障设备安全</string>
     <string name="back">Back</string>
     <string name="exit_fullscreen">Exit fullscreen</string>
     <string name="app_name_new">dynamicSpot</string>

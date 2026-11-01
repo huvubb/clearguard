@@ -18,7 +18,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * 游龙安全护盾 v6.0 — 大厂级纵深防御
+ * 澄盾 ClearGuard v6.0 — 大厂级纵深防御
  * ===========================
  * ✓ 防篡改（DEX CRC 校验 + APK 结构完整性 + META-INF 校验）→ 立即终止（资产底线）
  * ✓ 反 Root（Magisk / KernelSU / busybox / su 全路径 / test-keys）
@@ -58,7 +58,7 @@ public class YouLongShield {
      *   C 级（环境风险）Root/模拟器/多开 → 随机延时 5-30s 后功能错乱（正常用户无感）
      */
     public static void init(Context context) {
-        Log.i(TAG, "游龙安全护盾 v6.0 纵深防御启动中...");
+        Log.i(TAG, "澄盾 ClearGuard v6.0 纵深防御启动中...");
         sContext = context != null ? context.getApplicationContext() : null;
 
         // ---- A 级：防篡改检测（立即终止）----
@@ -105,7 +105,7 @@ public class YouLongShield {
         // ---- 后台守护自检：无论是否命中，持续随机间隔复检 ----
         startBackgroundSelfCheck();
 
-        Log.i(TAG, "游龙安全护盾检测流程完成");
+        Log.i(TAG, "澄盾 ClearGuard检测流程完成");
     }
 
     // ========================================================================
