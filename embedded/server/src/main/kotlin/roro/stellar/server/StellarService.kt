@@ -206,6 +206,9 @@ class StellarService : IStellarService.Stub() {
             StellarApiConstants.PERMISSION_STELLAR
         )
         if (permission == ShizukuApiConstants.PERMISSION_NAME) {
+            permissionEnforcer.enforceManager(CallerContext.fromBinder(), "dispatchPermissionConfirmationResult")
+            if (!serviceCore.permissionManager.consumePendingConfirmation(
+                    requestCode, requestUid, requestPid, ShizukuApiConstants.PERMISSION_NAME)) return
             val allowed = data.getBoolean(StellarApiConstants.REQUEST_PERMISSION_REPLY_ALLOWED, false)
             val onetime = data.getBoolean(StellarApiConstants.REQUEST_PERMISSION_REPLY_IS_ONETIME, false)
 
@@ -247,6 +250,7 @@ class StellarService : IStellarService.Stub() {
 
     override fun getFlagForUid(uid: Int, permission: String): Int {
         if (permission == ShizukuApiConstants.PERMISSION_NAME) {
+            permissionEnforcer.enforceManager(CallerContext.fromBinder(), "getFlagForUid")
             val stellarFlag = configManager.getPermissionFlag(uid, ShizukuApiConstants.PERMISSION_NAME)
             return ShizukuApiConstants.stellarToShizukuFlag(stellarFlag)
         }
@@ -257,6 +261,7 @@ class StellarService : IStellarService.Stub() {
 
     override fun updateFlagForUid(uid: Int, permission: String, flag: Int) {
         if (permission == ShizukuApiConstants.PERMISSION_NAME) {
+            permissionEnforcer.enforceManager(CallerContext.fromBinder(), "updateFlagForUid")
             val stellarFlag = ShizukuApiConstants.shizukuToStellarFlag(flag)
             configManager.updatePermission(uid, ShizukuApiConstants.PERMISSION_NAME, stellarFlag)
             clientManager.findClients(uid).forEach { it.onetimeMap.remove(ShizukuApiConstants.PERMISSION_NAME) }

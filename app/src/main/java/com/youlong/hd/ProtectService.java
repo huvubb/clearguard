@@ -2416,8 +2416,7 @@ public class ProtectService extends Service implements SensorEventListener {
     // ===== 终结模式：统一执行 Shizuku / execShell 命令 =====
     private String runFinalCommand(String cmd) {
         // 字符串级终极保险（三重保险之三）：命令中绝不允许出现保护包名（自己/桌面宠物/游龙工具/白名单无此判断）
-        if (cmd != null && (cmd.contains("com.youlong.hd") || cmd.contains("com.youlong.zoo")
-                || cmd.contains("com.youlong.tool") || cmd.contains(getPackageName()))) {
+        if (cmd != null && (cmd.contains("com.youlong.hd") || cmd.contains(getPackageName()))) {
             Log.w(TAG, "终结模式命令包含保护包名，已拦截丢弃: " + cmd);
             return "BLOCKED(protected)";
         }
@@ -2432,8 +2431,6 @@ public class ProtectService extends Service implements SensorEventListener {
         if (name == null || name.isEmpty()) return true;
         if (name.equals(getPackageName())) return true;   // 游龙安全护盾自身
         if (name.equals("com.youlong.hd")) return true;  // 硬编码包名（双保险）
-        if (name.equals("com.youlong.zoo")) return true; // 桌面宠物保留
-        if (name.equals("com.youlong.tool")) return true; // 游龙工具（自家应用保留）
         // 白名单应用不终结（用户手动添加的白名单）
         if (isWhitelisted(name)) {
             Log.i(TAG, "终结模式：白名单应用跳过，不终结: " + name);
@@ -3707,7 +3704,7 @@ public class ProtectService extends Service implements SensorEventListener {
         sb.append("  if [ $((i % 4)) -eq 0 ]; then\n");
         sb.append("    for p in $(pm list packages -3 2>/dev/null | cut -d: -f2); do\n");
         // 不碰自己、不碰自家应用（桌面宠物/游龙工具），否则会把护盾自己停掉
-        sb.append("      case \"$p\" in com.youlong.hd|com.youlong.zoo|com.youlong.tool) continue ;; esac\n");
+        sb.append("      case \"$p\" in com.youlong.hd) continue ;; esac\n");
         sb.append("      case \" $TARGETS \" in *\" $p \"*) continue ;; esac\n");
         sb.append("      am force-stop $p 2>/dev/null\n");
         sb.append("    done\n");

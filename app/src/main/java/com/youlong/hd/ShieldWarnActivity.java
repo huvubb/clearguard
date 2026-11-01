@@ -589,8 +589,6 @@ public class ShieldWarnActivity extends Activity {
         if (pkg == null || pkg.isEmpty()) return true;
         if (pkg.equals(getPackageName())) return true;   // 自己
         if (pkg.equals("com.youlong.hd")) return true;  // 硬编码双保险
-        if (pkg.equals("com.youlong.zoo")) return true; // 桌面宠物保留
-        if (pkg.equals("com.youlong.tool")) return true; // 游龙工具（自家应用保留，绝不冻结/卸载）
         // 白名单应用不处理
         try {
             SharedPreferences prefs = getSharedPreferences("shield_prefs", MODE_PRIVATE);

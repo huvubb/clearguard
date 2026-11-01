@@ -512,10 +512,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         
-        webSettings.setAllowFileAccess(true);
-        webSettings.setAllowContentAccess(true);
-        webSettings.setAllowFileAccessFromFileURLs(true);
-        webSettings.setAllowUniversalAccessFromFileURLs(true);
+        webSettings.setAllowFileAccess(false);
+        webSettings.setAllowContentAccess(false);
+        webSettings.setAllowFileAccessFromFileURLs(false);
+        webSettings.setAllowUniversalAccessFromFileURLs(false);
 
         
         webSettings.setLoadWithOverviewMode(true);
@@ -548,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         }
 
         
@@ -592,72 +592,42 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                String url = request.getUrl().toString();
-                if (url.startsWith(LOCAL_SCHEME)) {
-                    String path = url.substring(LOCAL_SCHEME.length());
-                    
-                    int qIdx = path.indexOf('?');
-                    if (qIdx >= 0) path = path.substring(0, qIdx);
-                    
-                    int fIdx = path.indexOf('#');
-                    if (fIdx >= 0) path = path.substring(0, fIdx);
-                    
-                    if (path.isEmpty()) path = "index.html";
-
-                    WebResourceResponse response = decryptAndServe(path);
-                    if (response != null) return response;
-                }
-                return super.shouldInterceptRequest(view, request);
+                return localAssetResponse(request.getUrl().toString());
             }
 
-            
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-                if (url != null && url.startsWith(LOCAL_SCHEME)) {
-                    String path = url.substring(LOCAL_SCHEME.length());
-                    int qIdx = path.indexOf('?');
-                    if (qIdx >= 0) path = path.substring(0, qIdx);
-                    int fIdx = path.indexOf('#');
-                    if (fIdx >= 0) path = path.substring(0, fIdx);
-                    if (path.isEmpty()) path = "index.html";
+                return localAssetResponse(url);
+            }
 
-                    WebResourceResponse response = decryptAndServe(path);
-                    if (response != null) return response;
-                }
-                return super.shouldInterceptRequest(view, url);
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return shouldOverrideUrlLoading(view, request.getUrl().toString());
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("file://") || url.startsWith("javascript:")) {
-                    return false;
-                }
-
-                if (url.startsWith("intent://")) {
+                if (WebOriginPolicy.isLocalDocument(url)) return false;
+                Uri uri = url == null ? null : Uri.parse(url);
+                if (uri != null && ("https".equals(uri.getScheme()) || "http".equals(uri.getScheme()))) {
                     try {
-                        Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-                        if (intent != null) {
-                            startActivity(intent);
-                            return true;
-                        }
+                        startActivity(new Intent(Intent.ACTION_VIEW, uri).addCategory(Intent.CATEGORY_BROWSABLE));
                     } catch (Exception e) {
-                        Toast.makeText(MainActivity.this, "无法打开此链接", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "无法打开链接", Toast.LENGTH_SHORT).show();
                     }
-                    return true;
                 }
-
-                try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(intent);
-                    return true;
-                } catch (Exception e) {
-                    Toast.makeText(MainActivity.this, "无法打开此链接", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
+                return true;
             }
 
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                if (!WebOriginPolicy.isLocalDocument(url)) {
+                    view.stopLoading();
+                    view.removeJavascriptInterface("Android");
+                    view.removeJavascriptInterface(StrX.d(StrX.BRIDGE_ANDROID_NATIVE));
+                    view.removeJavascriptInterface(StrX.d(StrX.BRIDGE_SHIZUKU));
+                    return;
+                }
                 super.onPageStarted(view, url, favicon);
                 
                 
@@ -1284,6 +1254,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     
+    private WebResourceResponse localAssetResponse(String url) {
+        if (WebOriginPolicy.isLocalAsset(url)) {
+            String path = Uri.parse(url).getPath();
+            WebResourceResponse response = decryptAndServe(path.substring(1));
+            if (response != null) return response;
+        }
+        return new WebResourceResponse("text/plain", "UTF-8", new java.io.ByteArrayInputStream(new byte[0]));
+    }
+
     private WebResourceResponse decryptAndServe(String path) {
         InputStream is = null;
         try {
@@ -4059,34 +4038,7 @@ private boolean hasAppListAccess() {
 
         @JavascriptInterface
         public String executeCommand(String command) {
-            if (!isStellarAvailable()) {
-                
-                
-                
-                return "错误：特权服务未启动（点「内置特权服务」页的「打开特权服务管理器」启动）";
-            }
-
-            if (!hasStellarPermission()) {
-                
-                runOnUiThread(() -> requestStellarPermission());
-                return "正在请求权限，请在弹窗中授权";
-            }
-
-            
-            final String cmd = command;
-            executor.execute(() -> {
-                final String result = runStellarCommand(cmd, 30000);
-                
-                runOnUiThread(() -> {
-                    if (webView != null) {
-                        String jsonResult = org.json.JSONObject.quote(result != null ? result : "");
-                        String js = "window.onShizukuCommandResult(" + jsonResult + ");";
-                        webView.evaluateJavascript(js, null);
-                    }
-                });
-            });
-
-            return "命令执行中...";
+            return "安全版已关闭网页任意命令执行，请使用原生应用管理功能";
         }
 
         @JavascriptInterface

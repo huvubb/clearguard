@@ -28,6 +28,7 @@ class PermissionEnforcer(
     ): Boolean {
         if (isSelf(caller) || isManager(caller)) return true
 
+        if (configManager.find(caller.uid) == null) return false
         val clientRecord = clientManager.findClient(caller.uid, caller.pid) ?: return false
 
         if (StellarApiConstants.isRuntimePermission(permission)) {
@@ -52,6 +53,7 @@ class PermissionEnforcer(
     ) {
         if (isSelf(caller) || isManager(caller)) return
 
+        if (configManager.find(caller.uid) == null) throw SecurityException("Permission owner changed")
         val clientRecord = clientManager.findClient(caller.uid, caller.pid)
         if (clientRecord == null) {
             val msg = "Permission Denial: $func from pid=${caller.pid}, uid=${caller.uid} is not an attached client"

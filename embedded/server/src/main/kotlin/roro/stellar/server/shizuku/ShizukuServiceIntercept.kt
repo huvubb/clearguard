@@ -95,6 +95,12 @@ class ShizukuServiceIntercept(
         throw SecurityException("Permission denied for $method")
     }
 
+    private fun enforceCallerIsManager(method: String) {
+        enforceEnabled()
+        if (getCallingPid() == callback.servicePid || checkCallerManagerPermission(getCallingUid())) return
+        throw SecurityException("Permission denied for $method")
+    }
+
     private fun transactRemote(data: Parcel, reply: Parcel?, flags: Int) {
         enforceCallingPermission("transactRemote")
 
@@ -227,8 +233,9 @@ class ShizukuServiceIntercept(
 
         Log.d(TAG, "removeUserService: uid=${getCallingUid()}")
 
+        val callingUid = getCallingUid()
         return withClearedIdentity {
-            userServiceAdapter.removeUserService(conn, args)
+            userServiceAdapter.removeUserService(conn, args, callingUid)
         }
     }
 
@@ -281,6 +288,7 @@ class ShizukuServiceIntercept(
             ?: packages.firstOrNull()
             ?: "unknown"
 
+        if (!packages.contains(packageName)) throw SecurityException("Package does not belong to caller")
         clientManager.attachShizukuApplication(callingUid, callingPid, application, packageName, apiVersion)
 
         val hasPermission = checkPermission(callingUid) == ConfigManager.FLAG_GRANTED ||
@@ -338,12 +346,12 @@ class ShizukuServiceIntercept(
     }
 
     override fun getFlagsForUid(uid: Int, mask: Int): Int {
-        if (!isEnabled()) return 0
+        enforceCallerIsManager("getFlagsForUid")
         return ShizukuApiConstants.stellarToShizukuFlag(checkPermission(uid))
     }
 
     override fun updateFlagsForUid(uid: Int, mask: Int, value: Int) {
-        if (!isEnabled()) return
+        enforceCallerIsManager("updateFlagsForUid")
         val stellarFlag = ShizukuApiConstants.shizukuToStellarFlag(value)
         configManager.updatePermission(uid, ShizukuApiConstants.PERMISSION_NAME, stellarFlag)
         clientManager.findClients(uid).forEach { it.onetimeMap.remove(ShizukuApiConstants.PERMISSION_NAME) }

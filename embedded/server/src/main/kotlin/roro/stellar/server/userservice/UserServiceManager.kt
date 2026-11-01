@@ -76,6 +76,7 @@ class UserServiceManager {
             return null
         }
 
+        if (applicationInfo.uid != callingUid) throw SecurityException("User service package does not belong to caller")
         val apkPath = applicationInfo.sourceDir
 
         val token = UUID.randomUUID().toString()

@@ -187,8 +187,8 @@ android {
         applicationId "com.youlong.hd"
         minSdk 24
         targetSdk 37
-        versionCode 1234567990
-        versionName "9.9.41"
+        versionCode 1234567991
+        versionName "9.9.41-security.1"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

@@ -8,6 +8,7 @@ import moe.shizuku.server.IShizukuServiceConnection
 import roro.stellar.server.userservice.UserServiceConstants
 import roro.stellar.server.userservice.UserServiceManager
 import roro.stellar.server.util.Logger
+import rikka.hidden.compat.PackageManagerApis
 import java.util.concurrent.ConcurrentHashMap
 
 class ShizukuUserServiceAdapter(
@@ -40,7 +41,10 @@ class ShizukuUserServiceAdapter(
         val noCreate = options.getBoolean(ShizukuApiConstants.UserServiceArgs.NO_CREATE, false)
         val processNameSuffix = options.getString(ShizukuApiConstants.UserServiceArgs.PROCESS_NAME) ?: "p"
 
-        val key = "$packageName:${tag ?: className}"
+        if (!PackageManagerApis.getPackagesForUidNoThrow(callingUid).contains(packageName)) {
+            throw SecurityException("User service package does not belong to caller")
+        }
+        val key = "$callingUid:$packageName:${tag ?: className}"
         LOGGER.i("addUserService: key=$key, daemon=$daemon, noCreate=$noCreate")
 
         val existingRecord = records[key]
@@ -109,7 +113,8 @@ class ShizukuUserServiceAdapter(
 
     fun removeUserService(
         conn: IShizukuServiceConnection,
-        options: Bundle
+        options: Bundle,
+        callingUid: Int
     ): Int {
         val componentName = options.getParcelable<ComponentName>(ShizukuApiConstants.UserServiceArgs.COMPONENT)
             ?: throw IllegalArgumentException("component is null")
@@ -119,7 +124,10 @@ class ShizukuUserServiceAdapter(
         val tag = options.getString(ShizukuApiConstants.UserServiceArgs.TAG)
         val remove = options.getBoolean(ShizukuApiConstants.UserServiceArgs.REMOVE, true)
 
-        val key = "$packageName:${tag ?: className}"
+        if (!PackageManagerApis.getPackagesForUidNoThrow(callingUid).contains(packageName)) {
+            throw SecurityException("User service package does not belong to caller")
+        }
+        val key = "$callingUid:$packageName:${tag ?: className}"
 
         LOGGER.i("removeUserService: key=$key, remove=$remove")
 

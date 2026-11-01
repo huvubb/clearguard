@@ -16,6 +16,7 @@ class StellarConfig {
     var daemonEnabled: Boolean = false
 
     class PackageEntry {
+        var identity: String = ""
         @SerializedName("packages")
         var packages: MutableList<String> = ArrayList()
         @SerializedName("permissions")

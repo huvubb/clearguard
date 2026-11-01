@@ -153,6 +153,19 @@ class ConfigManager {
         }
     }
 
+    private fun identityForUid(uid: Int): String? = try {
+        val packages = PackageManagerApis.getPackagesForUidNoThrow(uid).sorted()
+        if (packages.isEmpty()) null else packages.joinToString("|") { pkg ->
+            val pi = PackageManagerCompat.getPackageInfo(pkg, PackageManager.GET_SIGNATURES.toLong(), UserHandleCompat.getUserId(uid))
+                ?: throw SecurityException("Package disappeared")
+            val signatures = pi.signatures?.takeIf { it.isNotEmpty() } ?: throw SecurityException("No signing identity")
+            pkg + ":" + signatures.map { signature ->
+                java.security.MessageDigest.getInstance("SHA-256").digest(signature.toByteArray())
+                    .joinToString("") { "%02x".format(it) }
+            }.sorted().joinToString(",")
+        }
+    } catch (_: Exception) { null }
+
     private fun scheduleWriteLocked() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (workerHandler.hasCallbacks(mWriteRunner)) {
@@ -170,13 +183,19 @@ class ConfigManager {
 
     fun find(uid: Int): PackageEntry? {
         synchronized(this) {
-            return findLocked(uid)
+            val entry = findLocked(uid) ?: return null
+            val identity = identityForUid(uid)
+            if (identity == null || entry.identity != identity) {
+                removeLocked(uid)
+                return null
+            }
+            return entry
         }
     }
 
     fun getPermissionFlag(uid: Int, permission: String): Int {
         synchronized(this) {
-            return findLocked(uid)?.permissions?.get(permission) ?: FLAG_ASK
+            return find(uid)?.permissions?.get(permission) ?: FLAG_ASK
         }
     }
 
@@ -231,6 +250,7 @@ class ConfigManager {
                 entry.permissions[PERMISSION_STELLAR] = FLAG_ASK
             }
 
+            entry.identity = identityForUid(uid) ?: ""
             config.packages[uid] = entry
             scheduleWriteLocked()
 
@@ -281,12 +301,14 @@ class ConfigManager {
             entry.packages.addAll(PackageManagerApis.getPackagesForUidNoThrow(uid))
             LOGGER.i("为 uid=%d 的权限配置补全包名: %s", uid, entry.packages.toString())
         }
+        entry.identity = identityForUid(uid) ?: throw SecurityException("Cannot verify permission owner")
         entry.permissions[permission] = newFlag
         scheduleWriteLocked()
     }
 
     fun updatePermission(uid: Int, permission: String, newFlag: Int) {
         synchronized(this) {
+            find(uid) // Discard any grant whose installed owner changed.
             updatePermissionLocked(uid, permission, newFlag)
         }
     }
@@ -302,22 +324,12 @@ class ConfigManager {
         }
     }
 
-    fun isShizukuCompatEnabled(): Boolean {
-        // 2026-11-01（用户需求）：Shizuku 兼容层恒开，设置页已隐藏开关。
-        return true
-    }
+    fun isShizukuCompatEnabled(): Boolean = synchronized(this) { config.shizukuCompatEnabled }
 
     fun setShizukuCompatEnabled(enabled: Boolean) {
         synchronized(this) {
-            // 恒开：忽略关闭请求，只做一次持久化修正。
-            if (!enabled) {
-                LOGGER.i("Shizuku 兼容层已固定为开启，忽略禁用请求")
-            }
-            if (!config.shizukuCompatEnabled) {
-                config.shizukuCompatEnabled = true
-                LOGGER.i("Shizuku 兼容层状态已固定为: 启用")
-                scheduleWriteLocked()
-            }
+            config.shizukuCompatEnabled = enabled
+            scheduleWriteLocked()
         }
     }
 
