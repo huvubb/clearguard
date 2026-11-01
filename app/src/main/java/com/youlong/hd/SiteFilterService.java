@@ -39,7 +39,7 @@ public final class SiteFilterService extends VpnService {
                 Network underlying=physicalNetwork(connectivity);
                 if(underlying==null)throw new IOException("没有可用的基础网络");
                 Builder builder=new Builder().setSession("ClearGuard 网站域名防护").addAddress("10.94.0.1",32)
-                        .addDnsServer("10.94.0.2").addRoute("10.94.0.2",32).setMtu(1500);
+                        .addDnsServer("10.94.0.2").addRoute("10.94.0.2",32).allowFamily(android.system.OsConstants.AF_INET6).setBlocking(true).setMtu(1500);
                 builder.addDisallowedApplication(getPackageName());
                 ParcelFileDescriptor fd=builder.establish();if(fd==null)throw new IOException("VPN 授权不可用");
                 if(stopped){fd.close();return;}tunnel=fd;running=true;
