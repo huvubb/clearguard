@@ -7,7 +7,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.zip.GZIPInputStream;
 
 public final class SiteFilterService extends VpnService {
     public static volatile boolean running;
@@ -26,7 +25,7 @@ public final class SiteFilterService extends VpnService {
             try {
                 Map<String,String> domains=new HashMap<>();SharedPreferences prefs=getSharedPreferences("site_filter",0);
                 for(String category:new String[]{"threat","adult","gambling"}) if(prefs.getBoolean(category,true)) {
-                    try(BufferedReader input=new BufferedReader(new InputStreamReader(new GZIPInputStream(getAssets().open("site-lists/"+category+".txt.gz")),java.nio.charset.StandardCharsets.UTF_8))) {
+                    try(BufferedReader input=new BufferedReader(new InputStreamReader(getAssets().open("site-lists/"+category+".txt"),java.nio.charset.StandardCharsets.UTF_8))) {
                         String line;int count=0;while((line=input.readLine())!=null) {
                             if(stopped)return;
                             try{domains.put(SiteDomainPolicy.normalize(line),category);count++;}catch(IllegalArgumentException ignored){}

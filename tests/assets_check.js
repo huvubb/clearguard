@@ -142,6 +142,31 @@ if (missing.length === 0) {
 } // end of front-end HTML checks
 
 // ---------------------------------------------------------------------------
+// 6. site-lists: plain-text domain lists must exist and be non-empty
+//    (SiteFilterService reads site-lists/<category>.txt at runtime)
+// ---------------------------------------------------------------------------
+const siteListsDir = path.join(ASSETS_DIR, 'site-lists');
+const requiredSiteLists = ['threat.txt', 'adult.txt', 'gambling.txt'];
+for (const name of requiredSiteLists) {
+    const p = path.join(siteListsDir, name);
+    if (!fs.existsSync(p)) {
+        bad('site-list-exists:' + name, 'file missing');
+        continue;
+    }
+    const sz = fs.statSync(p).size;
+    if (sz < 1000) {
+        bad('site-list-size:' + name, 'suspiciously small: ' + sz + ' bytes');
+    } else {
+        ok('site-list-size:' + name + ' (' + sz + ' bytes)');
+    }
+    // make sure no stale .gz companion lingers
+    const gz = p + '.gz';
+    if (fs.existsSync(gz)) {
+        bad('site-list-stale-gz:' + name, '.txt.gz still present next to .txt');
+    }
+}
+
+// ---------------------------------------------------------------------------
 console.log('');
 if (failures === 0) {
     console.log('assets check: ALL PASS');
