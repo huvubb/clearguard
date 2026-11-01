@@ -174,7 +174,7 @@ function renderApps() {
     const details = document.createElement('button'); details.textContent = '详情'; details.setAttribute('aria-label', '查看 ' + (app.name || app.pkg));
     details.addEventListener('click', () => { try { call('openAppInfo', app.pkg); } catch (error) { toast(error.message); } });
     const block = document.createElement('button'); block.textContent = '管控';
-    block.addEventListener('click', () => { if (confirm('将「' + (app.name || app.pkg) + '」加入黑名单？')) { try { call('addSingleToBlacklist', app.pkg); toast('已加入黑名单'); } catch (error) { toast(error.message); } } });
+    block.addEventListener('click', () => { try { call('addSingleToBlacklist', app.pkg); toast('已加入黑名单'); } catch (error) { toast(error.message); } });
     const network = document.createElement('button'); network.textContent = '断网'; network.addEventListener('click', () => { try { call('blockAppNetwork', app.pkg); } catch(error) {toast(error.message);} });
     const remove = document.createElement('button'); remove.textContent = '处置'; remove.addEventListener('click', () => {try {call('openRemoval', app.pkg);} catch(error) {toast(error.message);}});
     row.append(avatar, info, details, block, network, remove); $('app-list').append(row);
@@ -185,7 +185,7 @@ $('app-search').addEventListener('input', renderApps);
 const actions = {
   refresh: () => { refresh(); toast('状态已刷新'); },
   'toggle-protect': () => {
-    if (protectOn) { if (!confirm('关闭守护与紧急逃生触发器？')) return; call('stopProtect'); }
+    if (protectOn) { call('stopProtect'); }
     else { const result = json(call('startProtect')); if (result.status === 'need_permission') toast('请先完成：' + result.missing); }
     setTimeout(refresh, 400);
   },
@@ -193,7 +193,7 @@ const actions = {
   terminal: () => call('openTerminal'),
   'native-apps': () => call('openNativeApps'),
   'runtime-logs': () => call('openRuntimeLogs'),
-  rescue: () => { if (confirm('立即打开紧急救援？')) call('triggerShakeAlert'); },
+  rescue: () => call('triggerShakeAlert'),
   'request-privilege': () => call('requestSelectedPrivilege'),
   'save-source': () => { call('configurePrivilegeSource', Number($('priv-source').value), $('external-shizuku').checked); refresh(); toast('特权来源已保存'); },
   'save-ad': () => {
@@ -202,8 +202,8 @@ const actions = {
     call('updateAdSkipConfig', JSON.stringify(config)); localStorage.setItem('ad-config', JSON.stringify(config)); toast('广告跳过配置已保存');
   },
   'deep-clean': () => { runResult('performDeepClean', '深度清理'); },
-  'trust-all': () => { if (confirm('信任当前全部应用将减少拦截保护。确认继续？')) { call('trustAllApps'); toast('当前应用已加入信任列表'); } },
-  'clear-crash': () => { if (confirm('清空崩溃日志？')) { call('clearCrashLog'); toast('日志已清空'); } },
+  'trust-all': () => { call('trustAllApps'); toast('当前应用已加入信任列表'); },
+  'clear-crash': () => { call('clearCrashLog'); toast('日志已清空'); },
   'close-dialog': () => $('result-dialog').close(),
   'copy-result': () => { call('copyText', $('result-body').textContent); toast('已复制'); }
 };
@@ -225,7 +225,7 @@ document.addEventListener('click', event => {
     else if (button.dataset.native) { native(button.dataset.native); refreshTools(); toast('已执行'); }
     else if (button.dataset.preset !== undefined) { native('setPreset', Number(button.dataset.preset)); toast('滤镜预设已更新'); }
     else if (button.dataset.mode) {
-      if (['super', 'extreme', 'final'].includes(button.dataset.mode) && !confirm('此模式可能停止、冻结或卸载应用，确认选择？')) return;
+      if (['super', 'extreme', 'final'].includes(button.dataset.mode)) {}
       call('setShieldMode', button.dataset.mode); refresh(); toast('拦截策略已保存');
     }
   } catch (error) { toast(error.message); }
