@@ -9,7 +9,7 @@
 - 无线调试：配对后复用已授权会话，先尝试已知端口再发现端口，验证 Binder 就绪后报告成功。
 - 安全修复：管理接口鉴权、拒绝状态保留、包名及签名身份绑定、用户服务隔离、授权请求限额和一次性消费。
 
-[下载与项目主页](https://huvubb.abrdns.com/) · [GitHub Releases](https://github.com/huvubb/youlong-security/releases)
+[下载与项目主页](https://huvubb.abrdns.com/) · [GitHub Releases](https://github.com/huvubb/clearguard/releases)
 
 ## 构建与测试
 
