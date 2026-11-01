@@ -60,6 +60,9 @@ object HardBlockRules {
     fun detect(text: String?): String? {
         if (text.isNullOrBlank()) return null
 
+        val kernelThreat = Regex("(?i)(?:^|[;|&\\s/])(?:insmod|rmmod|modprobe)(?:\\s|$)|setenforce\\s+0|(?:echo|printf)[^\\n]*>[^\\n]*/(?:proc/sys/kernel|sys/kernel/security|sys/fs/selinux)/|(?:dd|cat)[^\\n]*>[^\\n]*/dev/(?:block|mem|kmem)")
+        if (kernelThreat.containsMatchIn(text)) return "高风险内核操作：模块加载/卸载、关闭 SELinux 或改写内核控制接口"
+
         // 1) 任何 youlong 关键字：延续原有最高优先级保护。
         if (Regex("(?i)youlong").containsMatchIn(text)) {
             return "命令/脚本包含 youlong，可能针对游龙安全护盾或配套工具"
