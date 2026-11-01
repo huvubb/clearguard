@@ -16,7 +16,7 @@ public final class LocalPythonMain {
     public static void main(String[] args) {
         try {
             if (args.length != 5) throw new IllegalArgumentException("package, working directory, script name, APK and native directory required");
-            org.lsposed.hiddenapibypass.HiddenApiBypass.addHiddenApiExemptions("");
+            if (android.os.Build.VERSION.SDK_INT >= 28) org.lsposed.hiddenapibypass.HiddenApiBypass.addHiddenApiExemptions("");
             if (android.os.Looper.myLooper() == null) android.os.Looper.prepareMainLooper();
             Class<?> threadClass = Class.forName("android.app.ActivityThread");
             Object thread = threadClass.getMethod("systemMain").invoke(null);

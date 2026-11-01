@@ -11,7 +11,7 @@ public final class RemovalActivity extends Activity {
  private static boolean safe(Context c,String p) {return PkgGuard.isValid(p) && !p.equals(c.getPackageName()) && !java.util.Arrays.stream(c.getSharedPreferences("shield_prefs",0).getString("whitelist_pkgs","").split(",")).anyMatch(x->x.trim().equals(p));}
  private static int boot(Context c){return android.provider.Settings.Global.getInt(c.getContentResolver(),"boot_count",0);}
  @Override public void onCreate(Bundle b){super.onCreate(b);pkg=getIntent().getStringExtra("package");if(!safe(this,pkg)){finish();return;}
- LinearLayout root=new LinearLayout(this);root.setOrientation(1);root.setPadding(32,64,32,32);root.setBackgroundColor(0xFFF5F7F2);
+ LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(32,64,32,32);root.setBackgroundColor(0xFFF5F7F2);
  TextView heading=new TextView(this);heading.setText("澄盾 · 风险处置");heading.setTextSize(26);heading.setTextColor(0xFF172D25);root.addView(heading);
  status=new TextView(this);status.setText("待处理应用："+pkg+"\n先尝试已授权 shell 卸载；失败会显示原因并提供系统卸载。重启重试不会强制重启设备。");status.setTextSize(15);status.setPadding(0,32,0,32);root.addView(status);
  remove=new Button(this);remove.setText("先尝试 shell 卸载");root.addView(remove);remove.setOnClickListener(v->{remove.setEnabled(false);status.setText("正在卸载…");new Thread(()->{String result=uninstall(this,pkg);runOnUiThread(()->{if(!isFinishing()){status.setText(result);remove.setEnabled(true);}});},"removal").start();});

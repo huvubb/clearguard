@@ -12,7 +12,7 @@ public final class SiteFilterActivity extends Activity {
     private SharedPreferences prefs;
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);prefs=getSharedPreferences("site_filter",0);
-        LinearLayout root=new LinearLayout(this);root.setOrientation(1);root.setPadding(24,28,24,24);
+        LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(24,28,24,24);
         TextView title=new TextView(this);title.setText("澄盾 · 敏感网站防护");title.setTextSize(24);root.addView(title);
         TextView help=new TextView(this);help.setText("按域名拦截木马钓鱼、成人和赌博网站，不解密 HTTPS 页面。内置 HaGeZi 分类名单快照：2026-11-01。未拦截的 DNS 查询通过 HTTPS 交给 Cloudflare Security；该服务会看到查询域名。\n\n应用自带的加密 DNS、直连 IP 或其他 VPN 可能绕过域名过滤。网站过滤与应用断网隔离共用 Android VPN 通道，切换会停止另一模式。VPN/DNS 无法完全替代杀毒扫描。");root.addView(help);
         status=new TextView(this);root.addView(status);

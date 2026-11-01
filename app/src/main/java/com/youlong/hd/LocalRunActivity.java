@@ -20,7 +20,7 @@ public final class LocalRunActivity extends Activity {
     private volatile Process process;
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
-        LinearLayout root = new LinearLayout(this); root.setOrientation(1); root.setPadding(24,24,24,24);
+        LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setPadding(24,24,24,24);
         TextView title = new TextView(this); title.setText("澄盾 · 本地模型与脚本"); title.setTextSize(23); root.addView(title);
         type = spinner(root, new String[]{"sh 脚本", "Python 3.11（内置 Android ARM）", "GGUF · llama.cpp（ARM64 CPU）"});
         privilege = spinner(root, new String[]{"user：应用自身 UID", "ADB shell UID 2000：需激活并授权"});

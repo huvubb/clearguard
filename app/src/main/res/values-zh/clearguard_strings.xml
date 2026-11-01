@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="virus_alert_title">检测到高风险应用</string>
+  <string name="virus_alert_app">「%1$s」</string>
+  <string name="virus_alert_message">该应用与病毒特征库匹配，建议立即卸载。</string>
+  <string name="virus_alert_reason">匹配原因：%1$s</string>
+  <string name="virus_alert_uninstall">立即卸载</string>
+  <string name="virus_alert_later">稍后处理</string>
+  <string name="virus_alert_uninstalling">正在通过内置特权卸载…</string>
+  <string name="virus_alert_uninstall_ok">已卸载</string>
+  <string name="virus_alert_uninstall_failed">自动卸载失败，已打开系统卸载界面</string>
+  <string name="virus_alert_channel_name">病毒库检测</string>
+  <string name="virus_alert_channel_desc">发现与病毒特征库匹配的应用时提醒</string>
+</resources>
