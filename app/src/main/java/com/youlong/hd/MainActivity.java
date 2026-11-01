@@ -2016,6 +2016,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public class JavaScriptInterface {
+        @JavascriptInterface public void blockAppNetwork(String pkg) {
+            if (!PkgGuard.isValid(pkg) || pkg.equals(getPackageName())) return;
+            runOnUiThread(() -> startActivity(new Intent(MainActivity.this, NetworkBlockActivity.class).putExtra("package", pkg)));
+        }
         @JavascriptInterface public String scanViruses() { return VirusScanner.scan(MainActivity.this); }
         @JavascriptInterface public String getVirusScanStatus() { return VirusScanner.status(MainActivity.this); }
         @JavascriptInterface public void openActivation() { openNativeActivity(AdbPairActivity.class); }

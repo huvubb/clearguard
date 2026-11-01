@@ -166,7 +166,8 @@ function renderApps() {
     details.addEventListener('click', () => { try { call('openAppInfo', app.pkg); } catch (error) { toast(error.message); } });
     const block = document.createElement('button'); block.textContent = '管控';
     block.addEventListener('click', () => { if (confirm('将「' + (app.name || app.pkg) + '」加入黑名单？')) { try { call('addSingleToBlacklist', app.pkg); toast('已加入黑名单'); } catch (error) { toast(error.message); } } });
-    row.append(avatar, info, details, block); $('app-list').append(row);
+    const network = document.createElement('button'); network.textContent = '断网'; network.addEventListener('click', () => { try { call('blockAppNetwork', app.pkg); } catch(error) {toast(error.message);} });
+    row.append(avatar, info, details, block, network); $('app-list').append(row);
   }
 }
 $('app-search').addEventListener('input', renderApps);

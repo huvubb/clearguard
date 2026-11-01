@@ -343,6 +343,11 @@
         <activity android:name=".RuntimeLogActivity" android:exported="false" android:label="运行日志" />
         <activity android:name=".WhitelistPickerActivity" android:exported="false" android:label="选择信任应用" />
         <activity android:name=".RemovalActivity" android:exported="false" android:label="风险处置" />
+        <activity android:name=".NetworkBlockActivity" android:exported="false" android:label="应用网络隔离" />
+        <service android:name=".NetworkBlockService" android:exported="true" android:permission="android.permission.BIND_VPN_SERVICE" android:foregroundServiceType="specialUse">
+            <intent-filter><action android:name="android.net.VpnService" /></intent-filter>
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-selected app network quarantine" />
+        </service>
     </application>
 
 </manifest>

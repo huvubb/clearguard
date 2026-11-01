@@ -79,8 +79,8 @@ ext {
     // 本应用的版本号。
     // 上游 Stellar manager 的 defaultConfig 读 rootProject.ext.versionCode /
     // versionName；这里沿用本应用的版本号，使 embedded/ 下的源码保持零改动。
-    versionCode = 1234567991
-    versionName = "9.9.41-security.1"
+    versionCode = 1234567992
+    versionName = "1.0.0"
 }
 
 // ==========================================================================
