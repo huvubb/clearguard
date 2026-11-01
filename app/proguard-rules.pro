@@ -348,3 +348,6 @@
 -keepclassmembers,allowoptimization class com.youlong.priv.server.YlServerMain {
     public static void main(java.lang.String[]);
 }
+
+# app_process entry point is loaded by class name, outside Android components.
+-keep class com.youlong.hd.LocalPythonMain { public static void main(java.lang.String[]); }

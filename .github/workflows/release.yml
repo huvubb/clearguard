@@ -54,6 +54,10 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      - name: Set up Python for embedded runtime build
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
 

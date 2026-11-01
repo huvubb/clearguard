@@ -339,6 +339,7 @@
             android:name="moe.shizuku.client.V3_SUPPORT"
             android:value="true" />
 
+        <activity android:name=".LocalRunActivity" android:exported="false" />
         <activity android:name=".TerminalActivity" android:exported="false" android:label="澄盾终端" />
         <activity android:name=".RuntimeLogActivity" android:exported="false" android:label="运行日志" />
         <activity android:name=".WhitelistPickerActivity" android:exported="false" android:label="选择信任应用" />

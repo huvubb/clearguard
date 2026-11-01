@@ -212,4 +212,8 @@ Stellar 上游 README 与 `AGENTS.md` **未声明任何**与上述类似的额�
 即内核侧未做任何侵入式修改，界面替换不影响上游代码的完整性与许可义务。
 
 自研界面的源码位于 `app/src/main/java/com/youlong/hd/{PrivilegeActivity,PrivAuthActivity,AppListActivity,PrivSettingsActivity,PrivStatus}.java`，
-与本产品其余自有代码同许可（现为 AGPL-3.0，见仓库根目录 `LICENSE`）。
+与本产品其余自有代码同许可（现为 AGPL-3.0，见仓库根目录 `LICENSE`）。## Local runtimes
+
+llama.cpp (MIT), pinned at `dde879bc4f954b809892fd0d660515f42536394a`: https://github.com/ggml-org/llama.cpp . See LICENSES/llama.cpp-MIT.txt. CPU ARM64 executable is built from source with a verified archive hash.
+
+Chaquopy 17.2.0 and CPython 3.11 for Android: https://github.com/chaquo/chaquopy (MIT), https://docs.python.org/3/license.html (PSF license). Runtime dependencies retain their bundled licenses.

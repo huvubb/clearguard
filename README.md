@@ -5,7 +5,8 @@
 清晰可控的 Android 安全工具。基于 YouLong Security 开源快照重构，保留守护、紧急逃生、应用治理、广告跳过、屏幕滤镜、性能工具、Shizuku/Stellar 和诊断能力。
 
 - 五页完整本地界面：总览、守护、应用、工具、设置。支持浅色/深色，页面不加载远程脚本。
-- 原生终端：Android sh、Bash、CMD、PowerShell 解释器选择和自定义路径，明确确认后执行命令，可停止运行，限制时间和输出大小。Bash/pwsh 需要已安装兼容运行时；CMD 需要 Windows 兼容环境提供的启动器，APK 不捆绑这些运行时。每次执行为独立会话。
+- 原生终端：Android sh / Bash 兼容语法、CMD / PowerShell 常用命令转译。确认前展示实际 Android 命令；支持文件操作、进程查询/按 PID 终止、管道及命令连接。复杂变量、对象管道、Windows 路径和专有脚本语法不转译。每次执行为独立会话。
+- 本地运行：内置 Android ARM Python 3.11 和 ARM64 CPU llama.cpp，可选择 user / ADB shell UID 2000 执行脚本或运行 GGUF。支持本地导入、公开 Hugging Face GGUF 文件链接及 Ollama 模型层下载；不会自动执行模型输出。
 - 无线调试：配对后复用已授权会话，先尝试已知端口再发现端口，验证 Binder 就绪后报告成功。
 - 安全修复：管理接口鉴权、拒绝状态保留、包名及签名身份绑定、用户服务隔离、授权请求限额和一次性消费。
 
@@ -16,6 +17,7 @@
 JDK 21、Gradle 8.14、Android API 37、NDK 29、CMake 3.22.1。项目保留原有应用 ID 以兼容内置内核的 Binder/Provider 协议，显示名称和图标为澄盾。发布签名独立于原作者，不能覆盖安装官方签名 APK。
 
 ```sh
+bash .github/scripts/build-llama.sh  # Linux / WSL，先配置 ANDROID_HOME 和 NDK 29
 ./gradlew :app:assembleRelease
 node tests/assets_check.js
 python tests/ui_check.py /tmp/clearguard-preview

@@ -63,6 +63,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Set up Python for embedded runtime build
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
       - name: Setup Gradle
@@ -97,6 +101,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Set up Python for embedded runtime build
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
       - name: Setup Gradle
@@ -124,6 +132,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Set up Python for embedded runtime build
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
       - name: Setup Gradle
@@ -172,6 +184,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Set up Python for embedded runtime build
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
       - name: Setup Gradle
@@ -286,6 +302,8 @@ jobs:
           mkdir -p /tmp/clearguard-terminal-check
           javac -encoding UTF-8 -d /tmp/clearguard-terminal-check app/src/main/java/com/youlong/hd/TerminalCommand.java tests/TerminalCommandCheck.java
           java -ea -cp /tmp/clearguard-terminal-check TerminalCommandCheck
+          javac -encoding UTF-8 -d /tmp/clearguard-terminal-check app/src/main/java/com/youlong/hd/LocalRunCommand.java tests/LocalRunCommandCheck.java
+          java -ea -cp /tmp/clearguard-terminal-check LocalRunCommandCheck
 
   # 11/12 — license / notice compliance
   license-check:

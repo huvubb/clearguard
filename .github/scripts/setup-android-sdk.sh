@@ -108,3 +108,6 @@ log "installed components:"
 "$SDKMGR" --list_installed 2>/dev/null | sed -n '/^Installed packages:/,$p' | head -30 || true
 log "platforms dir: $(ls "$ANDROID_HOME/platforms" | tr '\n' ' ')"
 log "SDK bootstrap complete."
+
+# Package the pinned, CPU-only local GGUF engine before Gradle assembles the APK.
+bash "$(dirname "$0")/build-llama.sh"
