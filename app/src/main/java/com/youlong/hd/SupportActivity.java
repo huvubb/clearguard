@@ -1,0 +1,17 @@
+package com.youlong.hd;
+import android.app.*;
+import android.os.*;
+import android.content.*;
+import android.net.Uri;
+import android.widget.Toast;
+import java.net.*;
+import java.io.*;
+import org.json.JSONObject;
+public final class SupportActivity extends Activity {
+ private static final String BASE="https://huvubb.abrdns.com";
+ @Override public void onCreate(Bundle state){super.onCreate(state);String pkg=getIntent().getStringExtra("sample");if(pkg==null){new Thread(this::checkUpdate,"update-check").start();return;}if(!PkgGuard.isValid(pkg)){finish();return;}
+ new AlertDialog.Builder(this).setTitle("是否发送此 APK 样本？").setMessage(pkg+"\n仅发送该应用的安装 APK 到 huvubb.abrdns.com，不收集运行数据或自动附带日志。APK 本身也可能含私密信息。发送完全自愿，样本存放在非公开隔离目录。") .setNegativeButton("不发送",(d,w)->finish()).setPositiveButton("确认发送",(d,w)->new Thread(()->upload(pkg),"sample-upload").start()).setOnCancelListener(d->finish()).show();}
+ private void done(String text){runOnUiThread(()->new AlertDialog.Builder(this).setTitle("澄盾").setMessage(text).setPositiveButton("知道了",(d,w)->finish()).show());}
+ private void checkUpdate(){HttpURLConnection c=null;try{c=(HttpURLConnection)new URL(BASE+"/downloads/clearguard-update.json").openConnection();c.setConnectTimeout(10000);c.setReadTimeout(10000);if(c.getResponseCode()!=200)throw new IOException("更新服务暂不可用");ByteArrayOutputStream b=new ByteArrayOutputStream();try(InputStream in=c.getInputStream()){byte[] block=new byte[4096];int n;while((n=in.read(block))!=-1){if(b.size()+n>65536)throw new IOException("更新信息过大");b.write(block,0,n);}}JSONObject o=new JSONObject(b.toString("UTF-8"));long current=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;if(o.getLong("versionCode")<=current){done("当前已是最新版本。");return;}String url=o.getString("url");Uri uri=Uri.parse(url);if(!"https".equals(uri.getScheme())||!"huvubb.abrdns.com".equals(uri.getHost())||!uri.getPath().startsWith("/downloads/"))throw new IOException("更新地址无效");runOnUiThread(()->new AlertDialog.Builder(this).setTitle("发现新版本").setMessage(o.optString("versionName")+"\n"+o.optString("notes")).setNegativeButton("稍后",(d,w)->finish()).setPositiveButton("打开官方下载",(d,w)->{startActivity(new Intent(Intent.ACTION_VIEW,uri));finish();}).show());}catch(Exception e){done("检查更新失败："+e.getMessage());}finally{if(c!=null)c.disconnect();}}
+ private void upload(String pkg){HttpURLConnection c=null;try{File apk=new File(getPackageManager().getApplicationInfo(pkg,0).sourceDir);long size=apk.length();if(size<=0||size>30L*1024*1024)throw new IOException("仅支持 30 MB 以内的基础 APK 样本");c=(HttpURLConnection)new URL(BASE+"/api/clearguard/sample").openConnection();c.setRequestMethod("POST");c.setDoOutput(true);c.setConnectTimeout(15000);c.setReadTimeout(60000);c.setFixedLengthStreamingMode(size);c.setRequestProperty("Content-Type","application/vnd.android.package-archive");try(InputStream in=new FileInputStream(apk);OutputStream out=c.getOutputStream()){byte[] buf=new byte[16384];int n;while((n=in.read(buf))!=-1)out.write(buf,0,n);}int status=c.getResponseCode();if(status!=200&&status!=201)throw new IOException("服务器返回 "+status);done("样本已发送。感谢你的自愿反馈。");}catch(Exception e){done("发送失败："+e.getMessage());}finally{if(c!=null)c.disconnect();}}
+}

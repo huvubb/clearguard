@@ -348,6 +348,7 @@
             <intent-filter><action android:name="android.net.VpnService" /></intent-filter>
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-selected app network quarantine" />
         </service>
+        <activity android:name=".SupportActivity" android:exported="false" android:label="更新与样本反馈" />
     </application>
 
 </manifest>

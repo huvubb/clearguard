@@ -25,6 +25,15 @@ function showResult(title, value) {
   let text = value == null ? '操作已完成' : String(value);
   try { text = JSON.stringify(JSON.parse(text), null, 2); } catch (_) {}
   setText('result-body', text);
+  $('threat-actions').replaceChildren();
+  const threats = json(text, {});
+  for (const item of [...(threats.certain || []), ...(threats.suspect || [])]) {
+    if (!item.pkg) continue;
+    for (const [label, method] of [['隔离网络', 'blockAppNetwork'], ['自愿发送样本', 'offerSample']]) {
+      const button = document.createElement('button'); button.className = 'secondary full'; button.textContent = label + ' · ' + (item.name || item.pkg);
+      button.addEventListener('click', () => { try { call(method, item.pkg); } catch(error) {toast(error.message);} }); $('threat-actions').append(button);
+    }
+  }
   $('result-dialog').showModal();
 }
 function tab(name) {

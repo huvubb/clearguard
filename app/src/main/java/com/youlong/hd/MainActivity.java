@@ -2016,6 +2016,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public class JavaScriptInterface {
+        @JavascriptInterface public void checkForUpdates() { openNativeActivity(SupportActivity.class); }
+        @JavascriptInterface public void offerSample(String pkg) { if (PkgGuard.isValid(pkg)) runOnUiThread(() -> startActivity(new Intent(MainActivity.this, SupportActivity.class).putExtra("sample", pkg))); }
+        @JavascriptInterface public void openFeedback() { runOnUiThread(() -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://huvubb.abrdns.com/clearguard-feedback.html")))); }
+
         @JavascriptInterface public void blockAppNetwork(String pkg) {
             if (!PkgGuard.isValid(pkg) || pkg.equals(getPackageName())) return;
             runOnUiThread(() -> startActivity(new Intent(MainActivity.this, NetworkBlockActivity.class).putExtra("package", pkg)));
