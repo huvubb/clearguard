@@ -43,7 +43,7 @@ public final class VirusDb {
     private static final String URL_KEYS = "";
 
     
-    public static String getServerHost() { return SERVER_HOST_D; }
+    public static String getServerHost() { return ""; }
 
     private static final String K_CERTAIN_PKG = "certain_pkgs";
     private static final String K_CERTAIN_NAME = "certain_names";
