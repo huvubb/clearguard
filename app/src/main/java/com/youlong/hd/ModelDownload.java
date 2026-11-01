@@ -12,6 +12,7 @@ public final class ModelDownload {
     static final long MAX_BYTES = 16L * 1024 * 1024 * 1024;
     private ModelDownload() { }
     public static File download(String source, File directory, BooleanSupplier cancelled, Consumer<String> progress) throws Exception {
+        if (cancelled.getAsBoolean()) throw new InterruptedIOException("已取消下载");
         String digest = null;
         long expected = -1;
         URL url;
@@ -45,6 +46,7 @@ public final class ModelDownload {
                 if (media.equals("application/vnd.ollama.image.model")) {
                     if (digest != null) throw new IOException("暂不支持多模型层清单");
                     digest = layer.getString("digest"); expected = layer.getLong("size");
+                    if (expected < 4 || expected > MAX_BYTES) throw new IOException("模型清单大小无效或超过 16 GiB");
                 }
             }
             if (digest == null || !digest.matches("sha256:[0-9a-f]{64}")) throw new IOException("没有可校验的 GGUF 模型层");

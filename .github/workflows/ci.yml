@@ -67,8 +67,20 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Restore local inference runtime
+        id: llama-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
+      - name: Cache local inference runtime
+        if: steps.llama-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build debug APK
@@ -105,8 +117,20 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Restore local inference runtime
+        id: llama-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
+      - name: Cache local inference runtime
+        if: steps.llama-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run unit tests
@@ -136,8 +160,20 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Restore local inference runtime
+        id: llama-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
+      - name: Cache local inference runtime
+        if: steps.llama-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run lint
@@ -188,8 +224,20 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Restore local inference runtime
+        id: llama-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
+      - name: Cache local inference runtime
+        if: steps.llama-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Assemble unsigned release
@@ -304,6 +352,13 @@ jobs:
           java -ea -cp /tmp/clearguard-terminal-check TerminalCommandCheck
           javac -encoding UTF-8 -d /tmp/clearguard-terminal-check app/src/main/java/com/youlong/hd/LocalRunCommand.java tests/LocalRunCommandCheck.java
           java -ea -cp /tmp/clearguard-terminal-check LocalRunCommandCheck
+      - name: Check local model downloads and Python bridge
+        run: |
+          curl --fail --location --retry 3 https://repo.maven.apache.org/maven2/org/json/json/20231013/json-20231013.jar -o /tmp/clearguard-json.jar
+          echo '0f18192df289114e17aa1a0d0a7f8372cc9f5c7e4f7e39adcf8906fe714fa7d3  /tmp/clearguard-json.jar' | sha256sum --check
+          javac -encoding UTF-8 -cp /tmp/clearguard-json.jar -d /tmp/clearguard-terminal-check app/src/main/java/com/youlong/hd/ModelDownload.java tests/ModelDownloadCheck.java
+          java -ea -cp /tmp/clearguard-terminal-check:/tmp/clearguard-json.jar ModelDownloadCheck
+          python3 tests/python_runner_check.py
 
   # 11/12 — license / notice compliance
   license-check:

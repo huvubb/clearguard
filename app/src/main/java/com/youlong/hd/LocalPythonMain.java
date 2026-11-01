@@ -15,7 +15,7 @@ import java.util.Set;
 public final class LocalPythonMain {
     public static void main(String[] args) {
         try {
-            if (args.length != 2) throw new IllegalArgumentException("package and working directory required");
+            if (args.length != 3) throw new IllegalArgumentException("package, working directory and script name required");
             org.lsposed.hiddenapibypass.HiddenApiBypass.addHiddenApiExemptions("");
             Class<?> threadClass = Class.forName("android.app.ActivityThread");
             Object thread = threadClass.getMethod("systemMain").invoke(null);
@@ -25,7 +25,7 @@ public final class LocalPythonMain {
             if (!base.isDirectory()) throw new IllegalArgumentException("working directory missing");
             Python.start(new AndroidPlatform(new RuntimeApplication(packageContext, base)));
             String source = new String(readScript(), java.nio.charset.StandardCharsets.UTF_8);
-            Python.getInstance().getModule("clearguard_runner").callAttr("run_source", source);
+            Python.getInstance().getModule("clearguard_runner").callAttr("run_source", source, args[2]);
         } catch (Throwable error) { error.printStackTrace(); System.exit(1); }
         System.exit(0);
     }

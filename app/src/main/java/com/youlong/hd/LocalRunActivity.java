@@ -25,7 +25,7 @@ public final class LocalRunActivity extends Activity {
         type = spinner(root, new String[]{"sh 脚本", "Python 3.11（内置 Android ARM）", "GGUF · llama.cpp（ARM64 CPU）"});
         privilege = spinner(root, new String[]{"user：应用自身 UID", "ADB shell UID 2000：需激活并授权"});
         TextView help = new TextView(this);
-        help.setText("默认 user。脚本可访问所选 UID 的数据，请只运行可信内容。模型在本机 CPU 推理，不自动执行命令。下载仅支持公开的单文件文本 GGUF；建议先用小型量化模型。Python 单文件上限 1 MiB，需第三方 Python 包时自行提供兼容环境。");
+        help.setText("默认 user。脚本可访问所选 UID 的数据，请只运行可信内容。模型在本机 CPU 推理，不自动执行命令。下载仅支持公开的单文件文本 GGUF；建议先用小型量化模型。Python 非交互单文件上限 1 MiB，需第三方 Python 包时自行提供兼容环境。");
         root.addView(help);
         path = edit(root, "Android 文件路径，或选择本地文件", false);
         choose = new Button(this); choose.setText("导入本地脚本 / GGUF 文件");
@@ -38,8 +38,8 @@ public final class LocalRunActivity extends Activity {
         run = new Button(this); run.setText("确认并运行"); run.setOnClickListener(v -> confirmRun()); buttons.addView(run, new LinearLayout.LayoutParams(0,-2,1));
         Button stop = new Button(this); stop.setText("停止 / 取消"); stop.setOnClickListener(v -> cancel()); buttons.addView(stop,new LinearLayout.LayoutParams(0,-2,1)); root.addView(buttons);
         output = new TextView(this); output.setTextIsSelectable(true); output.setTypeface(android.graphics.Typeface.MONOSPACE); output.setText("等待选择本地文件。运行上限 10 分钟，可随时停止。");
-        ScrollView scroll = new ScrollView(this); scroll.addView(output); root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-        setContentView(root);
+        ScrollView scroll = new ScrollView(this); scroll.addView(output); root.addView(scroll,new LinearLayout.LayoutParams(-1,(int)(320 * getResources().getDisplayMetrics().density)));
+        ScrollView page = new ScrollView(this); page.addView(root); setContentView(page);
     }
     private Spinner spinner(LinearLayout root, String[] labels) {
         Spinner widget = new Spinner(this); widget.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, labels)); root.addView(widget); return widget;
@@ -126,8 +126,8 @@ public final class LocalRunActivity extends Activity {
                 else {
                     String working = adb ? "/data/local/tmp/clearguard-python-" + android.os.Process.myUid() : new File(getFilesDir(),"python-runner").getAbsolutePath();
                     args = new String[]{"/system/bin/sh","-c",
-                            "export CLASSPATH=\"$1\"; export LD_LIBRARY_PATH=\"$2\"; mkdir -p \"$3\" || exit; exec /system/bin/app_process \"-Djava.library.path=$2\" /system/bin com.youlong.hd.LocalPythonMain \"$4\" \"$3\"",
-                            "clearguard-python",getApplicationInfo().sourceDir,getApplicationInfo().nativeLibraryDir,working,getPackageName()};
+                            "export CLASSPATH=\"$1\"; export LD_LIBRARY_PATH=\"$2\"; mkdir -p \"$3\" || exit; exec /system/bin/app_process \"-Djava.library.path=$2\" /system/bin com.youlong.hd.LocalPythonMain \"$4\" \"$3\" \"$5\"",
+                            "clearguard-python",getApplicationInfo().sourceDir,getApplicationInfo().nativeLibraryDir,working,getPackageName(),file.getAbsolutePath()};
                 }
             } else {
                 script = null; validateGguf(file);

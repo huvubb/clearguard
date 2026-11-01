@@ -58,8 +58,20 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Restore local inference runtime
+        id: llama-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
       - name: Set up Android SDK (cmdline-tools + project toolchain)
         run: bash .github/scripts/setup-android-sdk.sh
+      - name: Cache local inference runtime
+        if: steps.llama-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: app/src/main/jniLibs/arm64-v8a
+          key: llama-arm64-${{ hashFiles('.github/scripts/build-llama.sh') }}
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4

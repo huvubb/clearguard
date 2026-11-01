@@ -69,12 +69,12 @@ public final class TerminalActivity extends Activity {
         output.setTextIsSelectable(true); output.setTypeface(Typeface.MONOSPACE); output.setTextSize(12);
         output.setPadding(12, 20, 12, 20);
         ScrollView scroll = new ScrollView(this); scroll.addView(output, new ViewGroup.LayoutParams(-1, -2));
-        root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+        root.addView(scroll, new LinearLayout.LayoutParams(-1, (int)(260 * getResources().getDisplayMetrics().density)));
         Button copy = new Button(this); copy.setText("复制输出");
         copy.setOnClickListener(v -> ((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE))
                 .setPrimaryClip(android.content.ClipData.newPlainText("terminal", output.getText())));
         root.addView(copy);
-        setContentView(root);
+        ScrollView page = new ScrollView(this); page.addView(root); setContentView(page);
     }
 
     private void confirmRun() {

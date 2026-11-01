@@ -3,6 +3,12 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 revision=dde879bc4f954b809892fd0d660515f42536394a
 archive_sha=83f099b6bbb531ca72d22cdd76d86641438469a214fd49a38f026c6a868598ed
+runtime_target="$repo_root/app/src/main/jniLibs/arm64-v8a/libclearguard_llama.so"
+script_hash="$(sha256sum "$0" | cut -d ' ' -f 1)"
+if [[ -s "$runtime_target" && -f "$runtime_target.stamp" ]] && [[ "$(cat "$runtime_target.stamp")" == "$script_hash" ]]; then
+    echo 'Reusing pinned Android llama.cpp runtime'
+    exit 0
+fi
 runtime_build="${RUNNER_TEMP:-/tmp}/clearguard-llama-${revision}"
 mkdir -p "$runtime_build" "$repo_root/app/src/main/jniLibs/arm64-v8a"
 if [[ ! -f "$runtime_build/source.tar.gz" ]]; then
@@ -24,3 +30,5 @@ cmake -S "$runtime_build/source" -B "$runtime_build/build" -G Ninja \
 cmake --build "$runtime_build/build" --target llama-completion -j 2
 # Android allows executable code from the installed native-library directory.
 cp "$runtime_build/build/bin/llama-completion" "$repo_root/app/src/main/jniLibs/arm64-v8a/libclearguard_llama.so"
+
+printf '%s\n' "$script_hash" > "$runtime_target.stamp"
