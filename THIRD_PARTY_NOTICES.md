@@ -220,4 +220,4 @@ Chaquopy 17.2.0 and CPython 3.11 for Android: https://github.com/chaquo/chaquopy
 
 ## Website category lists
 
-HaGeZi DNS Blocklists (GPL-3.0), snapshot 2026-11-01: `wildcard/tif.mini-onlydomains.txt`, `wildcard/nsfw-onlydomains.txt`, `wildcard/gambling.mini-onlydomains.txt`. https://github.com/hagezi/dns-blocklists . See LICENSES/HaGeZi.txt and app/src/main/assets/site-lists/snapshot.json for source/counts/checksums. Unblocked DNS requests use Quad9 DoH (https://dns.quad9.net/dns-query).
+HaGeZi DNS Blocklists (GPL-3.0), snapshot 2026-11-01: `wildcard/tif.mini-onlydomains.txt`, `wildcard/nsfw-onlydomains.txt`, `wildcard/gambling.mini-onlydomains.txt`. https://github.com/hagezi/dns-blocklists . See LICENSES/HaGeZi.txt and app/src/main/assets/site-lists/snapshot.json for source/counts/checksums. Unblocked DNS requests use Cloudflare Security DoH (https://security.cloudflare-dns.com/dns-query).

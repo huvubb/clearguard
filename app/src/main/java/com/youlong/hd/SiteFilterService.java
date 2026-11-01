@@ -35,21 +35,15 @@ public final class SiteFilterService extends VpnService {
                     }
                 }
                 SiteDomainPolicy policy=new SiteDomainPolicy(domains,prefs.getString("allow",""),prefs.getString("deny",""));
-                ConnectivityManager connectivity=(ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);Network underlying=null;
-                for(Network candidate:connectivity.getAllNetworks()) {
-                    NetworkCapabilities cap=connectivity.getNetworkCapabilities(candidate);
-                    if(cap!=null && !cap.hasTransport(NetworkCapabilities.TRANSPORT_VPN) && cap.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-                        underlying=candidate;if(cap.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED))break;
-                    }
-                }
+                ConnectivityManager connectivity=(ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+                Network underlying=physicalNetwork(connectivity);
                 if(underlying==null)throw new IOException("没有可用的基础网络");
                 Builder builder=new Builder().setSession("ClearGuard 网站域名防护").addAddress("10.94.0.1",32)
-                        .addDnsServer("10.94.0.2").addRoute("10.94.0.2",32).setMtu(1500).setUnderlyingNetworks(new Network[]{underlying});
+                        .addDnsServer("10.94.0.2").addRoute("10.94.0.2",32).setMtu(1500);
                 builder.addDisallowedApplication(getPackageName());
                 ParcelFileDescriptor fd=builder.establish();if(fd==null)throw new IOException("VPN 授权不可用");
                 if(stopped){fd.close();return;}tunnel=fd;running=true;
                 post(manager,2205,notification("网站域名防护中 · "+domains.size()+" 条分类规则"));
-                final Network network=underlying;
                 try(FileInputStream input=new FileInputStream(fd.getFileDescriptor());FileOutputStream output=new FileOutputStream(fd.getFileDescriptor())) {
                     byte[] buffer=new byte[65535];int size;
                     while(!stopped && (size=input.read(buffer))>=0) {
@@ -62,7 +56,8 @@ public final class SiteFilterService extends VpnService {
                                     response=packet.blocked();prefs.edit().putString("last_blocked",packet.domain).putString("last_category",category).apply();
                                     post(manager,2205,notification("已拦截："+packet.domain+" · "+category));
                                 } else {
-                                    HttpURLConnection connection=(HttpURLConnection)network.openConnection(new URL("https://dns.quad9.net/dns-query"));
+                                    Network network=physicalNetwork(connectivity);if(network==null)throw new IOException("基础网络不可用");
+                                    HttpURLConnection connection=(HttpURLConnection)network.openConnection(new URL("https://security.cloudflare-dns.com/dns-query"));
                                     try {
                                         connection.setConnectTimeout(5000);connection.setReadTimeout(5000);connection.setInstanceFollowRedirects(false);
                                         connection.setRequestMethod("POST");connection.setDoOutput(true);connection.setFixedLengthStreamingMode(packet.query.length);
@@ -85,6 +80,17 @@ public final class SiteFilterService extends VpnService {
             } finally {running=false;stopSelf();}
         });
         return START_NOT_STICKY;
+    }
+    private static Network physicalNetwork(ConnectivityManager connectivity) {
+        Network fallback=null;
+        for(Network candidate:connectivity.getAllNetworks()) {
+            NetworkCapabilities cap=connectivity.getNetworkCapabilities(candidate);
+            if(cap!=null && !cap.hasTransport(NetworkCapabilities.TRANSPORT_VPN) && cap.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                if(cap.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) && cap.hasTransport(NetworkCapabilities.TRANSPORT_WIFI))return candidate;
+                if(fallback==null || cap.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED))fallback=candidate;
+            }
+        }
+        return fallback;
     }
     private void post(NotificationManager manager,int id,Notification notification) {
         if(Build.VERSION.SDK_INT>=33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED)return;

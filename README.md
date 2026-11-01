@@ -7,7 +7,7 @@
 - 五页完整本地界面：总览、守护、应用、工具、设置。支持浅色/深色，页面不加载远程脚本。
 - 原生终端：Android sh / Bash 兼容语法、CMD / PowerShell 常用命令转译。确认前展示实际 Android 命令；支持文件操作、进程查询/按 PID 终止、管道及命令连接。复杂变量、对象管道、Windows 路径和专有脚本语法不转译。每次执行为独立会话。
 - 本地运行：内置 Android ARM Python 3.11 和 ARM64 CPU llama.cpp，可选择 user / ADB shell UID 2000 执行脚本或运行 GGUF。支持本地导入、公开 Hugging Face GGUF 文件链接及 Ollama 模型层下载；不会自动执行模型输出。
-- 敏感网站：木马钓鱼、成人、赌博三类域名名单，自定义拦截和放行，DNS-only 本机 VPN + Quad9 HTTPS DNS。与应用断网隔离互斥；不能覆盖应用自带的加密 DNS、直接 IP 访问或解密 HTTPS 内容。
+- 敏感网站：木马钓鱼、成人、赌博三类域名名单，自定义拦截和放行，DNS-only 本机 VPN + Cloudflare Security HTTPS DNS。与应用断网隔离互斥；不能覆盖应用自带的加密 DNS、直接 IP 访问或解密 HTTPS 内容。
 - 无线调试：配对后复用已授权会话，先尝试已知端口再发现端口，验证 Binder 就绪后报告成功。
 - 安全修复：管理接口鉴权、拒绝状态保留、包名及签名身份绑定、用户服务隔离、授权请求限额和一次性消费。
 

@@ -14,7 +14,7 @@ public final class SiteFilterActivity extends Activity {
         super.onCreate(state);prefs=getSharedPreferences("site_filter",0);
         LinearLayout root=new LinearLayout(this);root.setOrientation(1);root.setPadding(24,28,24,24);
         TextView title=new TextView(this);title.setText("澄盾 · 敏感网站防护");title.setTextSize(24);root.addView(title);
-        TextView help=new TextView(this);help.setText("按域名拦截木马钓鱼、成人和赌博网站，不解密 HTTPS 页面。内置 HaGeZi 分类名单快照：2026-11-01。未拦截的 DNS 查询通过 HTTPS 交给 Quad9；该服务会看到查询域名。\n\n应用自带的加密 DNS、直连 IP 或其他 VPN 可能绕过域名过滤。网站过滤与应用断网隔离共用 Android VPN 通道，切换会停止另一模式。VPN/DNS 无法完全替代杀毒扫描。");root.addView(help);
+        TextView help=new TextView(this);help.setText("按域名拦截木马钓鱼、成人和赌博网站，不解密 HTTPS 页面。内置 HaGeZi 分类名单快照：2026-11-01。未拦截的 DNS 查询通过 HTTPS 交给 Cloudflare Security；该服务会看到查询域名。\n\n应用自带的加密 DNS、直连 IP 或其他 VPN 可能绕过域名过滤。网站过滤与应用断网隔离共用 Android VPN 通道，切换会停止另一模式。VPN/DNS 无法完全替代杀毒扫描。");root.addView(help);
         status=new TextView(this);root.addView(status);
         threat=box(root,"木马、钓鱼与恶意域名","threat");adult=box(root,"成人网站","adult");gambling=box(root,"赌博网站","gambling");
         allow=field(root,"放行域名，每行一个（同时放行其子域名）",prefs.getString("allow",""));
@@ -24,7 +24,7 @@ public final class SiteFilterActivity extends Activity {
             if(SiteFilterService.running){status.setText("网站防护已在运行。修改规则后请先保存并停止。");return;}
             if(!save())return;
             new AlertDialog.Builder(this).setTitle("开启域名过滤")
-                    .setMessage("允许澄盾使用本机 VPN 过滤 DNS；未拦截域名由 Quad9 解析。不解密网页，不上传页面正文。开启后将替换其他 VPN / 应用断网隔离模式。")
+                    .setMessage("允许澄盾使用本机 VPN 过滤 DNS；未拦截域名由 Cloudflare Security 解析。不解密网页，不上传页面正文。开启后将替换其他 VPN / 应用断网隔离模式。")
                     .setNegativeButton("取消",null).setPositiveButton("继续",(d,w)->{Intent request=VpnService.prepare(this);if(request!=null)startActivityForResult(request,90);else start();}).show();
         });root.addView(enable);
         Button disable=new Button(this);disable.setText("停止网站过滤");disable.setOnClickListener(v -> {stopService(new Intent(this,SiteFilterService.class));status.setText("已请求停止网站过滤。");});root.addView(disable);
