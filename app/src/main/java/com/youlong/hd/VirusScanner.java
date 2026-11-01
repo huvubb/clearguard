@@ -183,12 +183,46 @@ public final class VirusScanner {
             // 性能约束：真机上逐个 APK 读文件很慢，所以整个过程有 8 秒总预算；
             // 超时立即停止并标记 contentTruncated=true，绝不把手动扫描卡死。
             // ==============================================================
-            // 2026-10-25（用户要求换思路）：内容特征分析已停用。
-            // 黑名单只看 safe1/safe2（包名）+ mingcheng1/2（应用名称）。
-            final boolean contentReady = false;
-            final String contentVersion = "";
-            final int contentChecked = 0;
-            final boolean contentTruncated = false;
+            // 2026-11-01：接通 Bloom 过滤器内容扫描
+            // 对第一轮（包名/名称）未命中的应用，计算 APK 整包 SHA-256 并查 Bloom 过滤器
+            final boolean contentReady = safeContentReady(ctx);
+            final String contentVersion = safeContentVersion(ctx);
+            int contentChecked = 0;
+            boolean contentTruncated = false;
+
+            if (contentReady) {
+                long contentStart = System.currentTimeMillis();
+                try {
+                    BloomFilter bloom = BloomFilter.loadFromAsset(ctx, "virus-bloom.bin");
+                    for (AppEntry e : apps.values()) {
+                        if (e == null || e.pkg == null || e.pkg.isEmpty()) continue;
+                        if (e.pkg.equals(ctx.getPackageName())) continue;
+                        if (e.system) continue;
+                        // 跳过第一轮已命中的
+                        boolean alreadyHit = false;
+                        for (Hit h : certain) if (h.pkg.equals(e.pkg)) { alreadyHit = true; break; }
+                        if (alreadyHit) continue;
+                        for (Hit h : suspect) if (h.pkg.equals(e.pkg)) { alreadyHit = true; break; }
+                        if (alreadyHit) continue;
+
+                        try {
+                            String apkHash = computeApkSha256(ctx, e.pkg);
+                            if (apkHash != null && bloom.contains(apkHash)) {
+                                certain.add(new Hit(e.pkg, e.label == null || e.label.isEmpty() ? e.pkg : e.label, "已知恶意 APK 哈希命中", true));
+                            }
+                            contentChecked++;
+                        } catch (Throwable tr) {
+                            Log.w(TAG, "内容扫描失败: " + e.pkg, tr);
+                        }
+                        if (System.currentTimeMillis() - contentStart > CONTENT_SCAN_BUDGET_MS) {
+                            contentTruncated = true;
+                            break;
+                        }
+                    }
+                } catch (Throwable tr) {
+                    Log.w(TAG, "Bloom 过滤器加载失败", tr);
+                }
+            }
 
             // 100% 病毒按名称排序，便于用户快速浏览；可能病毒同理
             Comparator<Hit> byName = new Comparator<Hit>() {
@@ -252,14 +286,46 @@ public final class VirusScanner {
     // ======================================================================
     // 2026-10-24 新增：内容特征库状态（异常一律按「未就绪/空版本」处理）
     // ======================================================================
-    /** 内容特征库是否就绪（2026-10-25：内容分析已停用，恒 false） */
+    /** 内容特征库是否就绪（Bloom 过滤器可加载） */
     private static boolean safeContentReady(Context ctx) {
-        return false;
+        try {
+            BloomFilter bf = BloomFilter.loadFromAsset(ctx, "virus-bloom.bin");
+            return bf.size() > 0;
+        } catch (Throwable tr) {
+            return false;
+        }
     }
 
-    /** 内容特征库版本（已停用，恒空） */
+    /** 内容特征库版本 */
     private static String safeContentVersion(Context ctx) {
-        return "";
+        try {
+            return "bloom-1.0.0";
+        } catch (Throwable tr) {
+            return "";
+        }
+    }
+
+    /** 计算已安装 APK 的整包 SHA-256（小写 hex） */
+    private static String computeApkSha256(Context ctx, String pkg) {
+        try {
+            PackageManager pm = ctx.getPackageManager();
+            ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+            String apkPath = ai.sourceDir;
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            try (java.io.FileInputStream in = new java.io.FileInputStream(apkPath)) {
+                byte[] buf = new byte[65536];
+                int n;
+                while ((n = in.read(buf)) != -1) md.update(buf, 0, n);
+            }
+            byte[] digest = md.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Throwable tr) {
+            return null;
+        }
     }
 
     /** 病毒特征库定时拉取是否已启动 */

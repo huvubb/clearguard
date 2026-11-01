@@ -232,7 +232,7 @@ public final class VirusAutoScanner {
 
     /** @return 命中原因；未命中返回 null */
     private static String matchReason(Context ctx, String pkg, String label, long deadline) {
-        // 2026-10-25：黑名单只来自 safe1/safe2（包名）+ mingcheng1/2（名称）
+        // 1. 包名/名称黑名单
         try {
             VirusDb.Data db = VirusDb.get(ctx);
             if (db != null && db.isBlacklisted(pkg, label)) {
@@ -241,7 +241,40 @@ public final class VirusAutoScanner {
         } catch (Throwable tr) {
             Log.w(TAG, "黑名单比对失败: " + pkg, tr);
         }
+        // 2. Bloom 过滤器 APK 哈希检查
+        try {
+            BloomFilter bf = BloomFilter.loadFromAsset(ctx, "virus-bloom.bin");
+            if (bf != null && bf.size() > 0) {
+                String apkHash = computeApkSha256(ctx, pkg);
+                if (apkHash != null && bf.contains(apkHash)) {
+                    return "已知恶意 APK 哈希命中";
+                }
+            }
+        } catch (Throwable tr) {
+            Log.w(TAG, "Bloom 过滤器比对失败: " + pkg, tr);
+        }
         return null;
+    }
+
+    /** 计算已安装 APK 的整包 SHA-256（小写 hex） */
+    private static String computeApkSha256(Context ctx, String pkg) {
+        try {
+            PackageManager pm = ctx.getPackageManager();
+            ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+            String apkPath = ai.sourceDir;
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            try (java.io.FileInputStream in = new java.io.FileInputStream(apkPath)) {
+                byte[] buf = new byte[65536];
+                int n;
+                while ((n = in.read(buf)) != -1) md.update(buf, 0, n);
+            }
+            byte[] digest = md.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (Throwable tr) {
+            return null;
+        }
     }
 
     private static boolean shouldSkip(Context ctx, ApplicationInfo ai) {

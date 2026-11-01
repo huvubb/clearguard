@@ -901,9 +901,13 @@ public final class VirusContentDb {
         }
     }
 
-    /** 黑名单列表是否已就绪 */
+    /** 黑名单列表是否已就绪（包名库或 Bloom 过滤器任一可用即就绪） */
     public static boolean isReady(Context ctx) {
         if (ctx == null) return false;
+        try {
+            BloomFilter bf = BloomFilter.loadFromAsset(ctx, "virus-bloom.bin");
+            if (bf != null && bf.size() > 0) return true;
+        } catch (Throwable ignored) {}
         VirusDb.Data vdb = VirusDb.get(ctx);
         return vdb != null && !vdb.isEmpty();
     }

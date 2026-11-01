@@ -167,6 +167,21 @@ for (const name of requiredSiteLists) {
 }
 
 // ---------------------------------------------------------------------------
+// 7. virus bloom filter must exist and be non-trivial
+// ---------------------------------------------------------------------------
+const bloomPath = path.join(ASSETS_DIR, 'virus-bloom.bin');
+if (!fs.existsSync(bloomPath)) {
+    bad('virus-bloom', 'virus-bloom.bin missing from assets');
+} else {
+    const bloomSz = fs.statSync(bloomPath).size;
+    if (bloomSz < 1000000) {
+        bad('virus-bloom-size', 'suspiciously small: ' + bloomSz + ' bytes');
+    } else {
+        ok('virus-bloom-size (' + bloomSz + ' bytes)');
+    }
+}
+
+// ---------------------------------------------------------------------------
 console.log('');
 if (failures === 0) {
     console.log('assets check: ALL PASS');

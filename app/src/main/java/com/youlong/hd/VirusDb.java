@@ -20,11 +20,11 @@ public final class VirusDb {
     private static final String PREF = "virus_db_prefs";
 
     // ========================================================================
-    // Remote list endpoints are intentionally absent from this package:
-    // the server host and the five list paths are not shipped.
+    // ClearGuard definitions repo — bloom filter update endpoint
     // ========================================================================
-    private static final String SERVER_HOST_D = "";
-    private static final String SERVER_BASE = "";
+    private static final String DEFINITIONS_REPO = "https://raw.githubusercontent.com/huvubb/clearguard-definitions/main/data";
+    private static final String URL_MANIFEST = DEFINITIONS_REPO + "/manifest.json";
+    private static final String URL_BLOOM = DEFINITIONS_REPO + "/sha256-bloom.bin";
 
     
     private static String stripScheme(String h) {
@@ -239,14 +239,42 @@ public final class VirusDb {
 
     
     public static void refreshAsync(final Context ctx) {
-        
-        Log.i(TAG, "开源版未内置病毒库：跳过拉取（详见 VirusDb 类注释）");
+        // 后台异步拉取 Bloom 过滤器更新
+        new Thread(() -> {
+            try {
+                refreshNow(ctx);
+            } catch (Throwable tr) {
+                Log.w(TAG, "Bloom 过滤器更新失败", tr);
+            }
+        }, "virus-db-refresh").start();
     }
 
     
     public static void refreshNow(Context ctx) {
-        
-        Log.i(TAG, "开源版未内置病毒库：refreshNow 为空实现");
+        try {
+            // 下载 manifest.json 检查是否有更新
+            String manifestBody = httpGet(URL_MANIFEST);
+            if (manifestBody == null) {
+                Log.w(TAG, "无法拉取 manifest，跳过更新");
+                return;
+            }
+            org.json.JSONObject manifest = new org.json.JSONObject(manifestBody);
+            String expectedHash = manifest.getJSONObject("files").getJSONObject("sha256-bloom.bin").getString("sha256");
+            // 下载新的 bloom filter
+            byte[] bloomData = httpGetBytes(URL_BLOOM);
+            if (bloomData == null) {
+                Log.w(TAG, "无法拉取 Bloom 过滤器，跳过更新");
+                return;
+            }
+            // TODO: 校验 SHA-256 后原子替换缓存文件
+            java.io.File cacheFile = new java.io.File(ctx.getCacheDir(), "virus-bloom-new.bin");
+            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(cacheFile)) {
+                fos.write(bloomData);
+            }
+            Log.i(TAG, "Bloom 过滤器更新已下载，大小=" + bloomData.length + "，期望SHA256=" + expectedHash);
+        } catch (Throwable tr) {
+            Log.w(TAG, "refreshNow 失败", tr);
+        }
     }
 
     
@@ -398,7 +426,7 @@ public final class VirusDb {
             conn.setConnectTimeout(12000);
             conn.setReadTimeout(12000);
             conn.setInstanceFollowRedirects(true);
-            conn.setRequestProperty("User-Agent", "YulongShield/9.1.1");
+            conn.setRequestProperty("User-Agent", "ClearGuard/1.0");
             conn.setRequestProperty("Accept-Charset", "UTF-8");
             int code = conn.getResponseCode();
             if (code != HttpURLConnection.HTTP_OK) {
@@ -417,6 +445,38 @@ public final class VirusDb {
             lastHttpDetail = e.getClass().getSimpleName()
                     + (e.getMessage() == null ? "" : ": " + e.getMessage());
             Log.w(TAG, "拉取异常: " + url + " → " + e.getMessage());
+            return null;
+        } finally {
+            if (conn != null) {
+                try { conn.disconnect(); } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    /** 下载二进制内容到 byte[] */
+    private static byte[] httpGetBytes(String url) {
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(30000);
+            conn.setInstanceFollowRedirects(true);
+            conn.setRequestProperty("User-Agent", "ClearGuard/1.0");
+            int code = conn.getResponseCode();
+            if (code != HttpURLConnection.HTTP_OK) {
+                Log.w(TAG, "二进制拉取失败(" + code + "): " + url);
+                return null;
+            }
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            try (java.io.InputStream in = conn.getInputStream()) {
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) != -1) bos.write(buf, 0, n);
+            }
+            return bos.toByteArray();
+        } catch (Exception e) {
+            Log.w(TAG, "二进制拉取异常: " + url, e);
             return null;
         } finally {
             if (conn != null) {
