@@ -54,6 +54,8 @@ public final class TerminalActivity extends Activity {
         root.addView(runtimeTip);
         Button localRun = new Button(this); localRun.setText("本地 Python / sh / GGUF 模型");
         localRun.setOnClickListener(v -> startActivity(new Intent(this, LocalRunActivity.class))); root.addView(localRun);
+        Button sites = new Button(this); sites.setText("敏感网站防护");
+        sites.setOnClickListener(v -> startActivity(new Intent(this, SiteFilterActivity.class))); root.addView(sites);
         command = new EditText(this);
         command.setHint("例如：id"); command.setTextColor(0xFF172D25);
         command.setTypeface(Typeface.MONOSPACE); command.setMinLines(3); command.setMaxLines(7);

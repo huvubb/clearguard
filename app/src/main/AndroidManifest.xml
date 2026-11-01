@@ -339,6 +339,11 @@
             android:name="moe.shizuku.client.V3_SUPPORT"
             android:value="true" />
 
+        <activity android:name=".SiteFilterActivity" android:exported="false" />
+        <service android:name=".SiteFilterService" android:exported="true" android:permission="android.permission.BIND_VPN_SERVICE" android:foregroundServiceType="specialUse">
+            <intent-filter><action android:name="android.net.VpnService" /></intent-filter>
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-enabled local DNS domain filtering" />
+        </service>
         <activity android:name=".LocalRunActivity" android:exported="false" />
         <activity android:name=".TerminalActivity" android:exported="false" android:label="澄盾终端" />
         <activity android:name=".RuntimeLogActivity" android:exported="false" android:label="运行日志" />

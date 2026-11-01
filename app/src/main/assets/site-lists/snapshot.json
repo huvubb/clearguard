@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-01",
+  "source": "https://github.com/hagezi/dns-blocklists",
+  "lists": {
+    "adult": {
+      "domains": 92285,
+      "sha256": "d5fb509bddf91d1b0939f25ad52260cfd78b190767dd669407cb7ede4fd02530"
+    },
+    "gambling": {
+      "domains": 117587,
+      "sha256": "d30c66e931a052773d01de2ba8482e2609a70741e8065266edfc211c42229f40"
+    },
+    "threat": {
+      "domains": 193569,
+      "sha256": "cf208faa5160d03f02c58022b288f91192187ec84c0fdd5c7c2d1890cf53ee17"
+    }
+  }
+}

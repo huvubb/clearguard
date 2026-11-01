@@ -126,7 +126,7 @@ public final class LocalRunActivity extends Activity {
                 else {
                     String working = adb ? "/data/local/tmp/clearguard-python-" + android.os.Process.myUid() : new File(getFilesDir(),"python-runner").getAbsolutePath();
                     args = new String[]{"/system/bin/sh","-c",
-                            "export CLASSPATH=\"$1\"; export LD_LIBRARY_PATH=\"$2\"; mkdir -p \"$3\" || exit; exec /system/bin/app_process \"-Djava.library.path=$2\" /system/bin com.youlong.hd.LocalPythonMain \"$4\" \"$3\" \"$5\"",
+                            "export CLASSPATH=\"$1\"; export LD_LIBRARY_PATH=\"$2\"; mkdir -p \"$3\" || exit; exec /system/bin/app_process \"-Djava.library.path=$2\" /system/bin com.youlong.hd.LocalPythonMain \"$4\" \"$3\" \"$5\" \"$1\" \"$2\"",
                             "clearguard-python",getApplicationInfo().sourceDir,getApplicationInfo().nativeLibraryDir,working,getPackageName(),file.getAbsolutePath()};
                 }
             } else {

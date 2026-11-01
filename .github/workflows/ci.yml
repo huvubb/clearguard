@@ -352,6 +352,8 @@ jobs:
           java -ea -cp /tmp/clearguard-terminal-check TerminalCommandCheck
           javac -encoding UTF-8 -d /tmp/clearguard-terminal-check app/src/main/java/com/youlong/hd/LocalRunCommand.java tests/LocalRunCommandCheck.java
           java -ea -cp /tmp/clearguard-terminal-check LocalRunCommandCheck
+          javac -encoding UTF-8 -d /tmp/clearguard-terminal-check app/src/main/java/com/youlong/hd/SiteDomainPolicy.java app/src/main/java/com/youlong/hd/DnsPacket.java tests/SiteFilterCheck.java
+          java -ea -cp /tmp/clearguard-terminal-check SiteFilterCheck
       - name: Check local model downloads and Python bridge
         run: |
           curl --fail --location --retry 3 https://repo.maven.apache.org/maven2/org/json/json/20231013/json-20231013.jar -o /tmp/clearguard-json.jar

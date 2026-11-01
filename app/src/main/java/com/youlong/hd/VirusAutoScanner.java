@@ -320,6 +320,8 @@ public final class VirusAutoScanner {
                     .setContentIntent(pi)
                     .setAutoCancel(true)
                     .setTimeoutAfter(60000L);
+            if (Build.VERSION.SDK_INT >= 33 && androidx.core.content.ContextCompat.checkSelfPermission(ctx,
+                    android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) return;
             NotificationManagerCompat.from(ctx).notify(7999, b.build());
         } catch (Throwable tr) {
             Log.w(TAG, "发自动拦截通知失败", tr);

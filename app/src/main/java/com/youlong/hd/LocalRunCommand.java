@@ -19,7 +19,7 @@ public final class LocalRunCommand {
     public static String[] adbOnly(String[] args) {
         String[] launch = new String[args.length + 4];
         launch[0] = "/system/bin/sh"; launch[1] = "-c";
-        launch[2] = "if [ \"$(id -u)\" != 2000 ]; then echo '需要 ADB shell UID 2000；拒绝以其他 UID 执行' >&2; exit 126; fi; exec \"$@\"";
+        launch[2] = "if [ \"$(/system/bin/id -u)\" != 2000 ]; then echo '需要 ADB shell UID 2000；拒绝以其他 UID 执行' >&2; exit 126; fi; exec \"$@\"";
         launch[3] = "clearguard-adb";
         System.arraycopy(args, 0, launch, 4, args.length);
         return launch;
