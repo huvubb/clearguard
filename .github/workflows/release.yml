@@ -93,11 +93,11 @@ jobs:
             echo "::error::no release APK produced"
             exit 1
           fi
-          cp "$apk" "release-assets/YouLongSecurity_${VERSION_LABEL}_release-unsigned.apk"
+          cp "$apk" "release-assets/ClearGuard_${VERSION_LABEL}_release-unsigned.apk"
           # attach the proguard mapping when present (crash de-obfuscation)
           mapping=$(find . -path '*/outputs/mapping/release/mapping.txt' -type f | head -1 || true)
           if [ -n "$mapping" ]; then
-            cp "$mapping" "release-assets/YouLongSecurity_${VERSION_LABEL}_mapping.txt"
+            cp "$mapping" "release-assets/ClearGuard_${VERSION_LABEL}_mapping.txt"
           fi
           cd release-assets
           sha256sum *.apk > SHA256SUMS.txt
@@ -143,6 +143,6 @@ jobs:
             > ⚠️ 本 APK **未签名**（本仓库设计上不含任何签名材料）。
             > 安装前请使用自己的密钥签名，例如：
             > ```
-            > apksigner sign --ks your.jks --out app-signed.apk YouLongSecurity_${{ needs.build.outputs.version_label }}_release-unsigned.apk
+            > apksigner sign --ks your.jks --out app-signed.apk ClearGuard_${{ needs.build.outputs.version_label }}_release-unsigned.apk
             > ```
             > 校验文件完整性请查看 `SHA256SUMS.txt`。

@@ -281,6 +281,11 @@ jobs:
           node-version: '20'
       - name: Check assets
         run: node tests/assets_check.js
+      - name: Check terminal argument boundaries
+        run: |
+          mkdir -p /tmp/clearguard-terminal-check
+          javac -encoding UTF-8 -d /tmp/clearguard-terminal-check app/src/main/java/com/youlong/hd/TerminalCommand.java tests/TerminalCommandCheck.java
+          java -ea -cp /tmp/clearguard-terminal-check TerminalCommandCheck
 
   # 11/12 — license / notice compliance
   license-check:
