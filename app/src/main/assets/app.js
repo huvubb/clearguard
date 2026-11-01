@@ -201,7 +201,7 @@ const actions = {
     const config = { enabled: $('ad-enabled').checked, customKeywords: split('ad-keywords'), monitorApps: split('ad-monitor'), blacklistApps: split('ad-exclude') };
     call('updateAdSkipConfig', JSON.stringify(config)); localStorage.setItem('ad-config', JSON.stringify(config)); toast('广告跳过配置已保存');
   },
-  'deep-clean': () => { if (confirm('清理缓存和垃圾文件？此操作无法撤销，请确认已保存重要内容。')) runResult('performDeepClean', '深度清理'); },
+  'deep-clean': () => { runResult('performDeepClean', '深度清理'); },
   'trust-all': () => { if (confirm('信任当前全部应用将减少拦截保护。确认继续？')) { call('trustAllApps'); toast('当前应用已加入信任列表'); } },
   'clear-crash': () => { if (confirm('清空崩溃日志？')) { call('clearCrashLog'); toast('日志已清空'); } },
   'close-dialog': () => $('result-dialog').close(),
