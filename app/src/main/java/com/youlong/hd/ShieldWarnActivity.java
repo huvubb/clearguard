@@ -784,80 +784,10 @@ public class ShieldWarnActivity extends Activity {
 
     // ===== 执行卸载（超级拦截模式：Shizuku pm uninstall）=====
     private void executeUninstall(final String pkg) {
-        // ===== 终极保险：受保护应用（自己/桌面宠物/游龙工具/白名单）绝不允许卸载 =====
-        if (isProtectedApp(pkg)) {
-            Log.w(TAG, "受保护应用，禁止卸载: " + pkg);
-            cdText.setText("⚠ 受保护应用，禁止卸载: " + pkg);
-            cdText.setTextColor(0xFFFF4444);
-            buttonContainer.removeAllViews();
-            Button btnDone = new Button(ShieldWarnActivity.this);
-            btnDone.setText("关闭");
-            btnDone.setTextColor(Color.WHITE);
-            btnDone.setTextSize(18);
-            btnDone.setBackgroundColor(0xFF2E7D32);
-            btnDone.setPadding(40, 24, 40, 24);
-            LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            btnDone.setLayoutParams(dp);
-            btnDone.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) { finish(); }
-            });
-            buttonContainer.addView(btnDone);
-            return;
-        }
+        if (isProtectedApp(pkg)) return;
         if (timer != null) { timer.cancel(); timer = null; }
-        cdText.setText("正在卸载...");
-        cdText.setTextColor(0xFFFFCC00);
-        buttonContainer.removeAllViews();
-        showCloseButton(); // 执行中也可随时安全关闭
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String result;
-                if (StellarUtils.isStellarAvailable() && StellarUtils.hasStellarPermission()) {
-                    result = StellarUtils.runCommand("pm uninstall " + pkg, 15000);
-                } else {
-                    // Shizuku 不可用，回退到系统卸载 Intent
-                    try {
-                        Runtime.getRuntime().exec(new String[]{"sh", "-c", "pm uninstall " + pkg}).waitFor();
-                        result = "OK(fallback)";
-                    } catch (Exception e) {
-                        result = "ERROR:" + e.getMessage();
-                    }
-                }
-                Log.w(TAG, "超级拦截 pm uninstall 结果: " + result);
-
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isFinishing() || isDestroyed()) return;
-                        // 检查是否卸载成功
-                        mainHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (isAppInstalled(pkg)) {
-                                    // 仍在 → 尝试系统卸载
-                                    showRescueUI(pkg);
-                                } else {
-                                    cdText.setText("卸载成功！");
-                                    cdText.setTextColor(0xFF4CAF50);
-                                    if (warnTv != null) {
-                                        warnTv.setText(pkg + " 已成功卸载");
-                                        warnTv.setTextColor(0xFF4CAF50);
-                                    }
-                                    mainHandler.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() { finish(); }
-                                    }, 2000);
-                                }
-                            }
-                        }, 1500);
-                    }
-                });
-            }
-        }).start();
+        startActivity(new Intent(this, RemovalActivity.class).putExtra("package", pkg));
+        finish();
     }
 
     private void showRescueUI(final String pkg) {

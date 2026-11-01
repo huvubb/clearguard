@@ -342,6 +342,7 @@
         <activity android:name=".TerminalActivity" android:exported="false" android:label="澄盾终端" />
         <activity android:name=".RuntimeLogActivity" android:exported="false" android:label="运行日志" />
         <activity android:name=".WhitelistPickerActivity" android:exported="false" android:label="选择信任应用" />
+        <activity android:name=".RemovalActivity" android:exported="false" android:label="风险处置" />
     </application>
 
 </manifest>

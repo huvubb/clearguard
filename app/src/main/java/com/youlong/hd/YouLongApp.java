@@ -26,6 +26,7 @@ public class YouLongApp extends Application {
     public void onCreate() {
         super.onCreate();
         sInstance = this;
+        roro.stellar.Stellar.INSTANCE.addBinderReceivedListener(() -> RemovalActivity.retryPending(this), null);
 
         
         
