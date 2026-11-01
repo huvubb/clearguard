@@ -405,9 +405,19 @@ class AdbPairActivity : AppCompatActivity() {
     // ======================================================================
     private fun startNotifyPairing() {
         try {
+            // Android 13+ 需要通知权限才能显示配对通知
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(
+                        arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 2002)
+                    setStatus("需要通知权限才能显示配对通知，请先允许通知，再点一次此按钮")
+                    return
+                }
+            }
             val inputPort = etPairPort.text.toString().trim().toIntOrNull() ?: -1
             val intent = AdbPairService.startIntent(this, if (inputPort in 1..65535) inputPort else -1)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(intent)
             } else {
                 startService(intent)
