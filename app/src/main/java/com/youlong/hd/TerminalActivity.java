@@ -63,7 +63,7 @@ public final class TerminalActivity extends Activity {
     private void confirmRun() {
         String text = command.getText().toString().trim();
         if (text.isEmpty() || text.length() > 8192) { output.setText("请输入 1–8192 字符的命令。"); return; }
-        if (!PrivRouter.isAnyAlive(this) || !PrivRouter.hasPermission(this)) {
+        if (!PrivRouter.isBinderAlive(this) || !PrivRouter.hasPermission(this)) {
             output.setText("特权服务未就绪，请先激活并授权。");
             startActivity(new Intent(this, PrivilegeActivity.class)); return;
         }

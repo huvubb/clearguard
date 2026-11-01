@@ -2023,7 +2023,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         @JavascriptInterface public String getActivationStatus() {
             org.json.JSONObject state = new org.json.JSONObject();
             try {
-                state.put("ready", PrivRouter.isAnyAlive(MainActivity.this) && PrivRouter.hasPermission(MainActivity.this));
+                state.put("ready", PrivRouter.isBinderAlive(MainActivity.this) && PrivRouter.hasPermission(MainActivity.this));
                 state.put("summary", PrivRouter.describe(MainActivity.this));
                 state.put("source", PrivRouter.getSource(MainActivity.this));
                 state.put("externalAllowed", PrivRouter.isExternalShizukuAllowed(MainActivity.this));
