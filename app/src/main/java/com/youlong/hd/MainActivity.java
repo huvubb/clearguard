@@ -2,6 +2,7 @@ package com.youlong.hd;
 import android.app.*;
 import android.os.*;
 import android.content.*;
+import android.content.pm.PackageManager;
 import android.graphics.*;
 import android.graphics.drawable.*;
 import android.view.*;
@@ -15,13 +16,13 @@ public final class MainActivity extends Activity {
  static final String KEY_AUTO_RESTART_AT="auto_restart_at";
  private LinearLayout root,page,nav;private int selected;
  private final int ink=0xFF173C30,muted=0xFF617165,bg=0xFFF5F7F2;
- @Override public void onCreate(Bundle state){setTheme(R.style.Theme_ClearGuard_Native);super.onCreate(state);if(getSharedPreferences("ransom_guard",0).getBoolean("enabled",false)&&!RansomwareGuardService.running)try{ContextCompat.startForegroundService(this,new Intent(this,RansomwareGuardService.class));}catch(Exception error){Log.w("Guard","恢复主动检查失败",error);}show(state==null?0:state.getInt("tab",0));if(Build.VERSION.SDK_INT>=33&&checkSelfPermission("android.permission.POST_NOTIFICATIONS")!=0)requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"},61);}
+ @Override public void onCreate(Bundle state){setTheme(R.style.Theme_ClearGuard_Native);super.onCreate(state);if(getSharedPreferences("ransom_guard",0).getBoolean("enabled",false)&&!RansomwareGuardService.running)try{ContextCompat.startForegroundService(this,new Intent(this,RansomwareGuardService.class));}catch(Exception error){Log.w("Guard","恢复主动检查失败",error);}show(state==null?0:state.getInt("tab",0));if(Build.VERSION.SDK_INT>=33&&checkSelfPermission("android.permission.POST_NOTIFICATIONS")!=PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"},61);}
  @Override protected void onSaveInstanceState(Bundle state){super.onSaveInstanceState(state);state.putInt("tab",selected);}
  @Override protected void onResume(){super.onResume();if(root!=null)show(selected);}
  private int dp(float n){return (int)(n*getResources().getDisplayMetrics().density+.5f);}
- private TextView text(String s,int size,int color,boolean bold){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);t.setFontFeatureSettings("kern");if(bold)t.setTypeface(Typeface.create("sans-serif-medium",0));return t;}
+ private TextView text(String s,int size,int color,boolean bold){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);t.setFontFeatureSettings("kern");if(bold)t.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));return t;}
  private GradientDrawable shape(int color,int radius){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(radius));return d;}
- private LinearLayout column(){LinearLayout c=new LinearLayout(this);c.setOrientation(1);return c;}
+ private LinearLayout column(){LinearLayout c=new LinearLayout(this);c.setOrientation(LinearLayout.VERTICAL);return c;}
  private void gap(LinearLayout parent,int h){View v=new View(this);parent.addView(v,new LinearLayout.LayoutParams(1,dp(h)));}
  private void show(int tab){
   selected=tab;root=column();root.setBackgroundColor(bg);NativeUi.insets(this,root);

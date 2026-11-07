@@ -11,7 +11,7 @@ public final class CacheCleaner {
  }
  private static void walk(File root,File current,boolean delete,Result result,int depth)throws IOException{
   if(Thread.currentThread().isInterrupted())throw new InterruptedIOException("已取消");
-  if(java.nio.file.Files.isSymbolicLink(current.toPath())||depth>64||!current.getCanonicalFile().equals(current.getAbsoluteFile())||(!current.equals(root)&&!current.getPath().startsWith(root.getPath()+File.separator))){result.skipped++;return;}
+  if(depth>64||!current.getCanonicalFile().equals(current.getAbsoluteFile())||(!current.equals(root)&&!current.getPath().startsWith(root.getPath()+File.separator))){result.skipped++;return;}
   if(current.isDirectory()){
    File[] children=current.listFiles();if(children==null){result.skipped++;return;}
    for(File child:children)walk(root,child,delete,result,depth+1);
