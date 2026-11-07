@@ -125,27 +125,39 @@ public final class ShizukuBackend {
     // ======================================================================
 
     
-    public static Process newProcess(String[] cmd, String[] env, String dir) {
-        IShizukuService svc = service();
-        if (svc == null) throw new IllegalStateException("Shizuku 未连接");
-        try {
-            IRemoteProcess remote = svc.newProcess(
-                    cmd,
-                    env == null ? new String[0] : env,
-                    dir == null ? "/" : dir);
-            if (remote == null) throw new IllegalStateException("Shizuku 未返回进程（可能未授权）");
-            return new ShizukuProcess(remote);
-        } catch (RemoteException e) {
-            throw new RuntimeException("Shizuku 执行失败: " + e, e);
-        }
+    private static volatile IClearGuardShell shellService;
+    private static final Object SHELL_LOCK=new Object();
+    private static final android.os.Binder SESSION=new android.os.Binder();
+    private static final moe.shizuku.server.IShizukuServiceConnection CONNECTION=new moe.shizuku.server.IShizukuServiceConnection.Stub(){
+        @Override public void connected(android.os.IBinder binder){synchronized(SHELL_LOCK){shellService=IClearGuardShell.Stub.asInterface(binder);SHELL_LOCK.notifyAll();}}
+        @Override public void died(){synchronized(SHELL_LOCK){shellService=null;SHELL_LOCK.notifyAll();}}
+    };
+    public static Process newProcess(String[] cmd,String[] env,String dir){
+        IShizukuService service=service();if(service==null)throw new IllegalStateException("Shizuku 未连接，请在权限服务中启动并授权");
+        if(!hasPermission())throw new SecurityException("Shizuku 尚未授权，请先在权限服务中申请授权");
+        try{
+            IClearGuardShell shell=shellService;
+            if(shell==null||!shell.asBinder().pingBinder()){
+                android.os.Bundle args=new android.os.Bundle();Context context=YouLongApp.instance();
+                args.putParcelable("shizuku:user-service-arg-component",new android.content.ComponentName(context,ShellUserService.class));
+                args.putString("shizuku:user-service-arg-tag","clearguard-command-v1");args.putString("shizuku:user-service-arg-process-name","shell");args.putInt("shizuku:user-service-arg-version-code",BuildConfig.VERSION_CODE);args.putBoolean("shizuku:user-service-arg-daemon",false);args.putBoolean("shizuku:user-service-arg-debuggable",BuildConfig.DEBUG);
+                service.addUserService(CONNECTION,args);
+                if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("正在准备命令服务，请稍后在后台重试");
+                long end=android.os.SystemClock.elapsedRealtime()+15000;
+                synchronized(SHELL_LOCK){while(shellService==null&&android.os.SystemClock.elapsedRealtime()<end)SHELL_LOCK.wait(Math.max(1,end-android.os.SystemClock.elapsedRealtime()));shell=shellService;}
+                if(shell==null)throw new IllegalStateException("Shizuku 命令服务启动超时，请重新启动 Shizuku 后重试");
+            }
+            int uid=shell.uid();if(uid!=2000&&uid!=0)throw new SecurityException("命令服务身份异常：UID "+uid);
+            IRemoteProcess remote=IRemoteProcess.Stub.asInterface(shell.start(cmd,env,dir==null?"/":dir,SESSION));if(remote==null)throw new IllegalStateException("命令服务没有返回进程");return new ShizukuProcess(remote);
+        }catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IllegalStateException("命令服务等待已取消",interrupted);}catch(RemoteException error){shellService=null;throw new IllegalStateException("Shizuku 命令服务通信失败："+error.getMessage(),error);}
     }
-
     
     static final class ShizukuProcess extends Process {
 
         private final IRemoteProcess remote;
         private OutputStream os;
         private InputStream is;
+        private InputStream es;
 
         ShizukuProcess(IRemoteProcess remote) {
             this.remote = remote;
@@ -178,7 +190,8 @@ public final class ShizukuBackend {
         @Override
         public InputStream getErrorStream() {
             try {
-                return new ParcelFileDescriptor.AutoCloseInputStream(remote.getErrorStream());
+                if(es==null)es=new ParcelFileDescriptor.AutoCloseInputStream(remote.getErrorStream());
+                return es;
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
@@ -205,9 +218,10 @@ public final class ShizukuBackend {
         @Override
         public int exitValue() {
             try {
+                if(remote.alive())throw new IllegalThreadStateException("进程仍在运行");
                 return remote.exitValue();
             } catch (RemoteException e) {
-                throw new IllegalThreadStateException("进程尚未退出: " + e);
+                throw new IllegalStateException("命令进程连接已断开: " + e, e);
             }
         }
 

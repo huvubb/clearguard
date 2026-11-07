@@ -39,14 +39,14 @@ public class BootReceiver extends BroadcastReceiver {
                 || "com.htc.intent.action.QUICKBOOT_POWERON".equals(action);
         if (!boot && !updated && !quickBoot) return;
 
+        if(context.getSharedPreferences("ransom_guard",0).getBoolean("enabled",false))try{ContextCompat.startForegroundService(context,new Intent(context,RansomwareGuardService.class));}catch(Exception error){context.getSharedPreferences("ransom_guard",0).edit().putString("last_report","主动检查恢复失败，请手动开启："+error.getMessage()).apply();}
+
         SharedPreferences prefs = context.getSharedPreferences("shield_prefs", Context.MODE_PRIVATE);
-        // 2026-10-31：自动拦截固定开启，开机时纠正旧版本留下的 false。
-        prefs.edit().putBoolean("auto_block_on", true).apply();
+
         boolean protectOn = prefs.getBoolean("protect_on", false);
         boolean shakeOn = prefs.getBoolean("shake_trigger_on", false);
         boolean volumeOn = prefs.getBoolean("volume_trigger_on", false);
-        // 2026-10：自动拦截（默认开启）可以脱离实时守护独立运行，开机也要拉起
-        boolean autoBlockOn = prefs.getBoolean("auto_block_on", true);
+        boolean autoBlockOn = prefs.getBoolean("auto_block_on", false);
         boolean anyOn = protectOn || shakeOn || volumeOn || autoBlockOn;
 
         if (anyOn) {

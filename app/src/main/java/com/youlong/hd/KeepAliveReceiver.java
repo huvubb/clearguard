@@ -37,7 +37,7 @@ public class KeepAliveReceiver extends BroadcastReceiver {
         boolean shakeOn = prefs.getBoolean("shake_trigger_on", false);
         boolean volumeOn = prefs.getBoolean("volume_trigger_on", false);
         // 2026-10：自动拦截独立于实时守护运行，也要被保活
-        boolean autoBlockOn = prefs.getBoolean("auto_block_on", true);
+        boolean autoBlockOn = prefs.getBoolean("auto_block_on", false);
 
         // 用户已关闭全部守护 → 不再重启，也不再排闹钟
         if (!protectOn && !shakeOn && !volumeOn && !autoBlockOn) {

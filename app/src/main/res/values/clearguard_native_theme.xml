@@ -1,0 +1,16 @@
+<resources>
+ <style name="Theme.ClearGuard.Native" parent="android:style/Theme.Material.Light.NoActionBar">
+  <item name="android:fontFamily">sans</item>
+  <item name="android:colorAccent">#23593E</item>
+  <item name="android:textColorPrimary">#173C30</item>
+  <item name="android:textColorSecondary">#526358</item>
+  <item name="android:windowLightStatusBar">true</item>
+  <item name="android:windowBackground">#F5F7F2</item>
+  <item name="android:colorControlHighlight">#2252785A</item>
+ </style>
+ <style name="Theme.ClearGuard.Compat" parent="Theme.AppCompat.Light.NoActionBar">
+  <item name="android:fontFamily">sans</item><item name="colorAccent">#23593E</item>
+  <item name="android:textColorPrimary">#173C30</item><item name="android:textColorSecondary">#526358</item>
+  <item name="android:windowBackground">#F5F7F2</item>
+ </style>
+</resources>

@@ -47,3 +47,6 @@ __pycache__/
 *.pyc
 
 app/src/main/jniLibs/arm64-v8a/libclearguard_llama.so.stamp
+
+*.p12
+local-signing.json

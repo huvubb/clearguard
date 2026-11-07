@@ -30,59 +30,21 @@ public final class TerminalActivity extends Activity {
     private TextView output;
 
     @Override public void onCreate(Bundle state) {
-        super.onCreate(state);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(24, 36, 24, 24);
-        root.setBackgroundColor(0xFFF5F7F2);
-        TextView title = new TextView(this);
-        title.setText("澄盾 · 原生终端"); title.setTextSize(24); title.setTextColor(0xFF172D25);
-        root.addView(title);
-        TextView tip = new TextView(this);
-        tip.setText("可选应用 user 或已授权的 ADB shell 执行。命令可能改变设备数据，请确认内容。单次运行上限 30 秒。");
-        tip.setTextColor(0xFF6C7B72); tip.setPadding(0, 16, 0, 16); root.addView(tip);
-        shell = new Spinner(this);
-        shell.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
-                new String[]{"Android sh", "Bash 兼容（sh）", "CMD 常用命令转译", "PowerShell 常用命令转译"}));
-        root.addView(shell);
-        privilege = new Spinner(this);
-        privilege.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
-                new String[]{"user：应用自身 UID", "ADB：shell UID 2000（需激活授权）"}));
-        root.addView(privilege);
-        TextView runtimeTip = new TextView(this);
-        runtimeTip.setText("CMD / PowerShell 常用别名会转译为 Android 命令，确认前展示结果。支持管道、顺序执行和 && / ||；使用 Android 路径。Bash 模式为 sh 兼容语法。每次执行为独立会话。");
-        root.addView(runtimeTip);
-        Button localRun = new Button(this); localRun.setText("本地 Python / sh / GGUF 模型");
-        localRun.setOnClickListener(v -> startActivity(new Intent(this, LocalRunActivity.class))); root.addView(localRun);
-        Button sites = new Button(this); sites.setText("敏感网站防护");
-        sites.setOnClickListener(v -> startActivity(new Intent(this, SiteFilterActivity.class))); root.addView(sites);
-        command = new EditText(this);
-        command.setHint("例如：id"); command.setTextColor(0xFF172D25);
-        command.setTypeface(Typeface.MONOSPACE); command.setMinLines(3); command.setMaxLines(7);
-        command.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        root.addView(command, new LinearLayout.LayoutParams(-1, -2));
-        LinearLayout buttons = new LinearLayout(this);
-        run = new Button(this); run.setText("执行命令");
-        run.setOnClickListener(v -> confirmRun()); buttons.addView(run, new LinearLayout.LayoutParams(0, -2, 1));
-        Button cancel = new Button(this); cancel.setText("停止");
-        cancel.setOnClickListener(v -> stopProcess()); buttons.addView(cancel, new LinearLayout.LayoutParams(0, -2, 1));
-        root.addView(buttons);
-        output = new TextView(this); output.setText("等待执行。"); output.setTextColor(0xFF172D25);
-        output.setTextIsSelectable(true); output.setTypeface(Typeface.MONOSPACE); output.setTextSize(12);
-        output.setPadding(12, 20, 12, 20);
-        ScrollView scroll = new ScrollView(this); scroll.addView(output, new ViewGroup.LayoutParams(-1, -2));
-        root.addView(scroll, new LinearLayout.LayoutParams(-1, (int)(260 * getResources().getDisplayMetrics().density)));
-        Button copy = new Button(this); copy.setText("复制输出");
-        copy.setOnClickListener(v -> ((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE))
-                .setPrimaryClip(android.content.ClipData.newPlainText("terminal", output.getText())));
-        root.addView(copy);
-        ScrollView page = new ScrollView(this); page.addView(root); setContentView(page);
+        setTheme(R.style.Theme_ClearGuard_Native);super.onCreate(state);
+        NativeUi.Page page=new NativeUi.Page(this,"命令终端","明确权限，确认后执行。","默认以应用自身权限执行。CMD／PowerShell 只转译常用命令；Bash 模式使用 Android sh 兼容语法。每次运行是独立会话，最长 30 秒。命令可能修改设备数据，执行前会展示实际命令。危险脚本预检查只覆盖澄盾终端，无法覆盖全系统。");
+        LinearLayout settings=page.section("执行环境");
+        shell=new Spinner(this);shell.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Android sh","Bash 兼容语法","CMD 常用转译","PowerShell 常用转译"}));NativeUi.field(this,settings,"命令语言",shell);
+        privilege=new Spinner(this);privilege.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"应用权限 · user","Shizuku · shell","超级用户 · Root"}));NativeUi.field(this,settings,"执行权限",privilege);
+        LinearLayout editor=page.section("命令编辑");command=new EditText(this);command.setHint("输入命令，例如 id");command.setTypeface(Typeface.MONOSPACE);command.setMinLines(4);command.setGravity(android.view.Gravity.TOP);command.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);editor.addView(command,new LinearLayout.LayoutParams(-1,-2));
+        run=NativeUi.action(this,editor,"确认并执行  ↗",this::confirmRun,true);NativeUi.action(this,editor,"停止当前命令",this::stopProcess,false);
+        LinearLayout result=page.section("执行输出");output=new TextView(this);output.setTypeface(Typeface.MONOSPACE);output.setText("等待输入命令。\n执行结果将在这里显示。");NativeUi.report(this,result,output,true);NativeUi.action(this,result,"复制输出",()->((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText("terminal",output.getText())),false);page.show();
     }
 
     private void confirmRun() {
         String text = command.getText().toString().trim();
         if (text.isEmpty() || text.length() > 8192) { output.setText("请输入 1–8192 字符的命令。"); return; }
         final boolean adb = privilege.getSelectedItemPosition() == 1;
+        final boolean rootMode = privilege.getSelectedItemPosition() == 2;
         if (adb && (!PrivRouter.isBinderAlive(this) || !PrivRouter.hasPermission(this))) {
             output.setText("特权服务未就绪，请先激活并授权。");
             startActivity(new Intent(this, PrivilegeActivity.class)); return;
@@ -90,10 +52,12 @@ public final class TerminalActivity extends Activity {
         final String translated;
         try { translated = TerminalCommand.translate(shell.getSelectedItemPosition(), text); }
         catch (IllegalArgumentException error) { output.setText(error.getMessage()); return; }
+        String blocked = ScriptGuard.check(translated);
+        if (blocked != null) { output.setText("主动防护已阻止：" + blocked); return; }
         new AlertDialog.Builder(this).setTitle("确认在设备上执行")
-                .setMessage("权限：" + (adb ? "ADB shell UID 2000" : "应用 UID " + android.os.Process.myUid()) + "\n\n输入：\n" + text + "\n\n实际执行（Android sh）：\n" + translated)
+                .setMessage("权限：" + (rootMode ? "Root（启动时核验 UID 0）" : adb ? "ADB shell UID 2000" : "应用 UID " + android.os.Process.myUid()) + "\n\n输入：\n" + text + "\n\n实际执行（Android sh）：\n" + translated)
                 .setNegativeButton("取消", null)
-                .setPositiveButton("执行", (dialog, which) -> execute(new String[]{"/system/bin/sh", "-c", translated}, adb)).show();
+                .setPositiveButton("执行", (dialog, which) -> execute(rootMode ? new String[]{"su", "-c", "[ $(id -u) = 0 ] || exit 126; " + translated} : new String[]{"/system/bin/sh", "-c", translated}, adb)).show();
     }
 
     private void execute(String[] args, boolean adb) {

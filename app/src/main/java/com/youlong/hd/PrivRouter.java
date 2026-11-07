@@ -99,10 +99,10 @@ public final class PrivRouter {
         boolean shizuku = shizukuAlive();
 
         if (chosen == SOURCE_SHIZUKU) {
-            return (shizuku || !builtin) ? SOURCE_SHIZUKU : SOURCE_BUILTIN;
+            return SOURCE_SHIZUKU;
         }
         if (chosen == SOURCE_BUILTIN) {
-            return (builtin || !shizuku) ? SOURCE_BUILTIN : SOURCE_SHIZUKU;
+            return SOURCE_BUILTIN;
         }
         // AUTO: 优先系统 Shizuku
         if (shizuku) return SOURCE_SHIZUKU;
@@ -116,7 +116,7 @@ public final class PrivRouter {
 
     
     public static boolean isBinderAlive(Context ctx) {
-        return builtinAlive() || shizukuAlive();
+        return activeSource(ctx) == SOURCE_SHIZUKU ? shizukuAlive() : builtinAlive();
     }
 
     

@@ -58,7 +58,7 @@ public final class KeepAliveAlarm {
                     || sp.getBoolean("shake_trigger_on", false)
                     || sp.getBoolean("volume_trigger_on", false)
                     // 2026-10：自动拦截可独立于实时守护运行，也要保活
-                    || sp.getBoolean("auto_block_on", true);
+                    || sp.getBoolean("auto_block_on", false);
         } catch (Throwable tr) {
             return false;
         }

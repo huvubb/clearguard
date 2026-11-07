@@ -282,10 +282,8 @@ public class ProtectService extends Service implements SensorEventListener {
         // ===== 若所有功能开关均未开启，立即停止自身 =====
         // 注意：摇动触发 / 音量触发 / 自动拦截 都是独立功能，不依赖"防锁机守护"主开关。
         // 2026-10 用户需求：不开「实时守护」但开着「自动拦截」时，自动拦截也必须生效，
-        // 因此 auto_block_on 也算一个「让服务活着」的理由（该开关默认开启）。
         SharedPreferences bootPrefs = getSharedPreferences("shield_prefs", MODE_PRIVATE);
-        // 2026-10-31（用户需求）：自动拦截固定开启，服务每次启动都强制纠正。
-        bootPrefs.edit().putBoolean("auto_block_on", true).apply();
+
         // 2026-10-17（用户需求）：删除「超级拦截模式」，恢复「极强拦截模式」。
         // 存量 super 用户没有对应入口，统一回落基础模式，避免后台仍按已删除模式执行。
         if ("super".equals(bootPrefs.getString("shield_mode", "basic"))) {
@@ -295,7 +293,7 @@ public class ProtectService extends Service implements SensorEventListener {
         boolean protectOn = bootPrefs.getBoolean("protect_on", false);
         boolean shakeOn = bootPrefs.getBoolean("shake_trigger_on", false);
         boolean volOn = bootPrefs.getBoolean("volume_trigger_on", false);
-        boolean autoBlockOn = bootPrefs.getBoolean("auto_block_on", true);
+        boolean autoBlockOn = bootPrefs.getBoolean("auto_block_on", false);
         if (!protectOn && !shakeOn && !volOn && !autoBlockOn) {
             Log.w(TAG, "守护/摇动/音量触发/自动拦截均未开启，停止服务");
             stopSelf();
@@ -4005,13 +4003,12 @@ public class ProtectService extends Service implements SensorEventListener {
 
     // ===== 病毒库：单轮检测 =====
     private void virusScanOnce() {
-        // 【自动拦截总开关】病毒库页面新增，默认开启。
         // 关闭后本轮直接跳过：既不弹窗也不卸载，做到「关掉就真的不拦」。
         // 该值由 MainActivity.setAutoBlockEnabled 写入；每次开启实时守护（startProtect）
         // 都会被原生强制写回 true（用户要求：开守护必须自动开启自动拦截）。
         // 每轮实时读取，改开关无需重启服务即可生效。
         if (!getSharedPreferences("shield_prefs", MODE_PRIVATE)
-                .getBoolean("auto_block_on", true)) {
+                .getBoolean("auto_block_on", false)) {
             return;
         }
         // 2026-10-29：自动拦截方式，direct=直接卸载（默认），confirm=先询问 5 秒后自动卸载。
@@ -5681,7 +5678,7 @@ public class ProtectService extends Service implements SensorEventListener {
         return sp.getBoolean("protect_on", false)
                 || sp.getBoolean("shake_trigger_on", false)
                 || sp.getBoolean("volume_trigger_on", false)
-                || sp.getBoolean("auto_block_on", true);
+                || sp.getBoolean("auto_block_on", false);
     }
 
     /** 服务是否在运行（跨进程，同 uid 可见） */
@@ -5701,12 +5698,11 @@ public class ProtectService extends Service implements SensorEventListener {
         // ===== 兜底检查：若所有开关全部关闭，立即停止自身并移除通知 =====
         // 防止任何路径（保活闹钟/START_STICKY/开机自启/自动重启）在用户关闭护盾后
         // 又把服务拉起来并重新发出"正在守护"通知。
-        // 2026-10：自动拦截（默认开启）也算一个开关 —— 不开实时守护时服务要留下跑自动拦截。
         SharedPreferences sp = getSharedPreferences("shield_prefs", MODE_PRIVATE);
         boolean pOn = sp.getBoolean("protect_on", false);
         boolean sOn = sp.getBoolean("shake_trigger_on", false);
         boolean vOn = sp.getBoolean("volume_trigger_on", false);
-        boolean aOn = sp.getBoolean("auto_block_on", true);
+        boolean aOn = sp.getBoolean("auto_block_on", false);
         if (!pOn && !sOn && !vOn && !aOn) {
             Log.i(TAG, "护盾已关闭（所有开关全关），兜底停止服务并移除通知");
             try { stopForeground(true); } catch (Exception ignored) {}
@@ -5832,7 +5828,7 @@ public class ProtectService extends Service implements SensorEventListener {
         boolean pE = spE.getBoolean("protect_on", false);
         boolean sE = spE.getBoolean("shake_trigger_on", false);
         boolean vE = spE.getBoolean("volume_trigger_on", false);
-        boolean aE = spE.getBoolean("auto_block_on", true);
+        boolean aE = spE.getBoolean("auto_block_on", false);
         if (!pE && !sE && !vE && !aE) {
             try {
                 stopService(new Intent(this, ForegroundService.class));
@@ -5845,7 +5841,7 @@ public class ProtectService extends Service implements SensorEventListener {
         boolean pD = spD.getBoolean("protect_on", false);
         boolean sD = spD.getBoolean("shake_trigger_on", false);
         boolean vD = spD.getBoolean("volume_trigger_on", false);
-        boolean aD = spD.getBoolean("auto_block_on", true);
+        boolean aD = spD.getBoolean("auto_block_on", false);
         if (pD || sD || vD || aD) {
             Log.w(TAG, "服务被终结/回收，2秒后自动重启（防终结自愈）");
             new Handler(Looper.getMainLooper()).postDelayed(() -> {

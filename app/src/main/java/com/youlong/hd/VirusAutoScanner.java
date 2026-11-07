@@ -241,18 +241,14 @@ public final class VirusAutoScanner {
         } catch (Throwable tr) {
             Log.w(TAG, "黑名单比对失败: " + pkg, tr);
         }
-        // 2. Bloom 过滤器 APK 哈希检查
+        // Only an exact IOC may enter the automatic enforcement cache.
         try {
-            BloomFilter bf = BloomFilter.loadFromAsset(ctx, "virus-bloom.bin");
-            if (bf != null && bf.size() > 0) {
-                String apkHash = computeApkSha256(ctx, pkg);
-                if (apkHash != null && bf.contains(apkHash)) {
-                    return "已知恶意 APK 哈希命中";
-                }
+            String hash = computeApkSha256(ctx, pkg);
+            if (hash != null) {
+                VirusDefinitions.Match match = VirusDefinitions.get(ctx).lookup(hash);
+                if (match.confirmed) return "精确恶意 APK 哈希命中：" + match.evidence;
             }
-        } catch (Throwable tr) {
-            Log.w(TAG, "Bloom 过滤器比对失败: " + pkg, tr);
-        }
+        } catch (Exception error) { Log.w(TAG, "精确哈希比对失败: " + pkg, error); }
         return null;
     }
 

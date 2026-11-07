@@ -222,7 +222,7 @@ public class AdSkipService extends AccessibilityService {
             boolean anyOn = sp.getBoolean("protect_on", false)
                     || sp.getBoolean("shake_trigger_on", false)
                     || sp.getBoolean("volume_trigger_on", false)
-                    || sp.getBoolean("auto_block_on", true);
+                    || sp.getBoolean("auto_block_on", false);
             if (!anyOn) return;
             try {
                 ContextCompat.startForegroundService(this, new Intent(this, ProtectService.class));

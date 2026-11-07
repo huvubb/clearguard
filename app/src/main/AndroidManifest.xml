@@ -253,6 +253,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 
@@ -345,6 +346,11 @@
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-enabled local DNS domain filtering" />
         </service>
         <activity android:name=".LocalRunActivity" android:exported="false" />
+        <activity android:name=".RansomwareGuardActivity" android:exported="false" />
+        <service android:name=".RansomwareGuardService" android:exported="false" android:foregroundServiceType="specialUse"><property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User enabled installed application ransomware evidence inspection and network quarantine" /></service>
+        <activity android:name=".FolderCleanupActivity" android:exported="false" />
+        <activity android:name=".DiskCleanupActivity" android:exported="false" android:label="磁盘清理" />
+        <activity android:name=".NativeScanActivity" android:exported="false" android:label="安全扫描" />
         <activity android:name=".TerminalActivity" android:exported="false" android:label="澄盾终端" />
         <activity android:name=".RuntimeLogActivity" android:exported="false" android:label="运行日志" />
         <activity android:name=".WhitelistPickerActivity" android:exported="false" android:label="选择信任应用" />

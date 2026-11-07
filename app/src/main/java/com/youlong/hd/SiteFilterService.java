@@ -52,8 +52,9 @@ public final class SiteFilterService extends VpnService {
                             try {
                                 String category=policy.blockedCategory(packet.domain);byte[] response;
                                 if(category!=null) {
-                                    response=packet.blocked();prefs.edit().putString("last_blocked",packet.domain).putString("last_category",category).apply();
-                                    post(manager,2205,notification("已拦截："+packet.domain+" · "+category));
+                                    prefs.edit().putString("last_blocked",packet.domain).putString("last_category",category).apply();
+                                    post(manager,2205,notification("已丢弃 DNS 查询："+packet.domain+" · "+category));
+                                    return; // Drop blocked DNS packets; do not forward or reply.
                                 } else {
                                     Network network=physicalNetwork(connectivity);if(network==null)throw new IOException("基础网络不可用");
                                     HttpURLConnection connection=(HttpURLConnection)network.openConnection(new URL("https://security.cloudflare-dns.com/dns-query"));

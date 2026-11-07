@@ -19,27 +19,14 @@ public final class LocalRunActivity extends Activity {
     private volatile boolean cancelled;
     private volatile Process process;
     @Override public void onCreate(Bundle state) {
-        super.onCreate(state);
-        LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setPadding(24,24,24,24);
-        TextView title = new TextView(this); title.setText("澄盾 · 本地模型与脚本"); title.setTextSize(23); root.addView(title);
-        type = spinner(root, new String[]{"sh 脚本", "Python 3.11（内置 Android ARM）", "GGUF · llama.cpp（ARM64 CPU）"});
-        privilege = spinner(root, new String[]{"user：应用自身 UID", "ADB shell UID 2000：需激活并授权"});
-        TextView help = new TextView(this);
-        help.setText("默认 user。脚本可访问所选 UID 的数据，请只运行可信内容。模型在本机 CPU 推理，不自动执行命令。下载仅支持公开的单文件文本 GGUF；建议先用小型量化模型。Python 非交互单文件上限 1 MiB，需第三方 Python 包时自行提供兼容环境。");
-        root.addView(help);
-        path = edit(root, "Android 文件路径，或选择本地文件", false);
-        choose = new Button(this); choose.setText("导入本地脚本 / GGUF 文件");
-        choose.setOnClickListener(v -> startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), 81)); root.addView(choose);
-        prompt = edit(root, "模型提示词（仅 GGUF 使用）", true);
-        tokens = edit(root, "最大生成 tokens（1–4096）", false); tokens.setText("256"); tokens.setInputType(2);
-        source = edit(root, "Hugging Face /resolve/...gguf 链接，或 Ollama 模型名，例如 qwen2.5:0.5b", false);
-        fetch = new Button(this); fetch.setText("下载 GGUF 模型（完成后手动运行）"); fetch.setOnClickListener(v -> confirmDownload()); root.addView(fetch);
-        LinearLayout buttons = new LinearLayout(this);
-        run = new Button(this); run.setText("确认并运行"); run.setOnClickListener(v -> confirmRun()); buttons.addView(run, new LinearLayout.LayoutParams(0,-2,1));
-        Button stop = new Button(this); stop.setText("停止 / 取消"); stop.setOnClickListener(v -> cancel()); buttons.addView(stop,new LinearLayout.LayoutParams(0,-2,1)); root.addView(buttons);
-        output = new TextView(this); output.setTextIsSelectable(true); output.setTypeface(android.graphics.Typeface.MONOSPACE); output.setText("等待选择本地文件。运行上限 10 分钟，可随时停止。");
-        ScrollView scroll = new ScrollView(this); scroll.addView(output); root.addView(scroll,new LinearLayout.LayoutParams(-1,(int)(320 * getResources().getDisplayMetrics().density)));
-        ScrollView page = new ScrollView(this); page.addView(root); setContentView(page);
+        setTheme(R.style.Theme_ClearGuard_Native);super.onCreate(state);
+        NativeUi.Page page=new NativeUi.Page(this,"本地模型与脚本","把推理和运行留在设备上。","模型仅在本机 CPU 生成文本，不自动执行命令。脚本可读写所选权限能够访问的数据，请只运行可信内容。每次运行最长 10 分钟。Python 支持内置 Android ARM 运行时，第三方包需兼容环境。模型下载可能消耗数 GB 空间及流量，下载后仍需手动启动。");
+        LinearLayout config=page.section("运行方式");config.addView(NativeUi.label(this,"运行类型",12,0xFF526358));type=spinner(config,new String[]{"sh 脚本","Python 3.11","GGUF · 本机 CPU"});config.addView(NativeUi.label(this,"执行权限",12,0xFF526358));privilege=spinner(config,new String[]{"应用权限 · user","Shizuku · shell"});
+        LinearLayout file=page.section("本地文件");path=edit(file,"选择文件，或填写 Android 绝对路径",false);choose=NativeUi.action(this,file,"导入本地文件",()->startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),81),false);
+        LinearLayout model=page.section("模型输入 · GGUF");prompt=edit(model,"写下你想让模型处理的内容",true);prompt.setMinLines(3);tokens=edit(model,"最大生成长度（1–4096 tokens）",false);tokens.setText("256");tokens.setInputType(2);
+        LinearLayout download=page.section("下载模型");source=edit(download,"Hugging Face 文件链接或 Ollama 模型名",false);fetch=NativeUi.action(this,download,"下载到本机",this::confirmDownload,false);
+        LinearLayout actions=page.section("运行控制");run=NativeUi.action(this,actions,"确认并运行  ↗",this::confirmRun,true);NativeUi.action(this,actions,"停止运行／取消下载",this::cancel,false);
+        LinearLayout result=page.section("运行输出");output=new TextView(this);output.setTypeface(android.graphics.Typeface.MONOSPACE);output.setText("等待选择本地文件。\n模型输出与运行记录会显示在这里。");NativeUi.report(this,result,output,true);page.show();
     }
     private Spinner spinner(LinearLayout root, String[] labels) {
         Spinner widget = new Spinner(this); widget.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, labels)); root.addView(widget); return widget;
@@ -122,6 +109,7 @@ public final class LocalRunActivity extends Activity {
                     }
                     script = bytes.toByteArray();
                 }
+                if(selected==0){String reason=ScriptGuard.check(new String(script,StandardCharsets.UTF_8));if(reason!=null)throw new IOException("主动防护已阻止："+reason);}
                 if (selected == 0) args = new String[]{"/system/bin/sh","-s"};
                 else {
                     String working = adb ? "/data/local/tmp/clearguard-python-" + android.os.Process.myUid() : new File(getFilesDir(),"python-runner").getAbsolutePath();

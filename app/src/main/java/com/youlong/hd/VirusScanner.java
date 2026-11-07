@@ -208,7 +208,7 @@ public final class VirusScanner {
                         try {
                             String apkHash = computeApkSha256(ctx, e.pkg);
                             if (apkHash != null && bloom.contains(apkHash)) {
-                                certain.add(new Hit(e.pkg, e.label == null || e.label.isEmpty() ? e.pkg : e.label, "已知恶意 APK 哈希命中", true));
+                                suspect.add(new Hit(e.pkg, e.label == null || e.label.isEmpty() ? e.pkg : e.label, "哈希筛查命中，需精确复核", false));
                             }
                             contentChecked++;
                         } catch (Throwable tr) {
@@ -239,7 +239,7 @@ public final class VirusScanner {
             try {
                 java.util.List<String> matched = new ArrayList<>();
                 for (int i = 0; i < certain.size(); i++) matched.add(certain.get(i).pkg);
-                for (int i = 0; i < suspect.size(); i++) matched.add(suspect.get(i).pkg);
+                // Probabilistic or heuristic hits must never become enforcement rules.
                 VirusContentDb.onPackagesMatched(ctx, matched);
             } catch (Throwable tr) {
                 Log.w(TAG, "记录内置特权黑名单失败", tr);

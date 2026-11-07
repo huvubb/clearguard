@@ -45,9 +45,10 @@ public class PrivilegeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_ClearGuard_Compat);super.onCreate(savedInstanceState);
         setTitle("特权服务");
         setContentView(buildContentView());
+        NativeUi.legacy(this,"权限服务","连接状态与授权范围，一目了然。");
         refresh();
     }
 
@@ -71,7 +72,7 @@ public class PrivilegeActivity extends AppCompatActivity {
         final int pad = dp(20);
 
         ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(0xFFF5F5F7);
+        scroll.setBackgroundColor(0xFFF5F7F2);
         scroll.setFillViewport(true);
 
         LinearLayout root = new LinearLayout(this);
@@ -392,6 +393,8 @@ public class PrivilegeActivity extends AppCompatActivity {
 
     
     private void onRequestShizukuPermission() {
+        PrivRouter.setSource(this,PrivRouter.SOURCE_SHIZUKU);
+        PrivRouter.setExternalShizukuAllowed(this,true);
         if (!ShizukuBackend.isManagerInstalled(this)) {
             try {
                 startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,

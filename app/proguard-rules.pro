@@ -351,3 +351,6 @@
 
 # app_process entry point is loaded by class name, outside Android components.
 -keep class com.youlong.hd.LocalPythonMain { public static void main(java.lang.String[]); }
+
+# Shizuku creates this Binder class by component name.
+-keep class com.youlong.hd.ShellUserService { *; }

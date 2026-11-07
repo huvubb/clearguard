@@ -1,7 +1,8 @@
 pluginManagement {
     repositories {
-        google()
         mavenCentral()
+        maven { url "https://repo.huaweicloud.com/repository/maven" }
+        google()
         gradlePluginPortal()
     }
 }
@@ -9,8 +10,9 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
         mavenCentral()
+        maven { url "https://repo.huaweicloud.com/repository/maven" }
+        google()
         // 内置 Stellar 管理器界面用 libsu 以 root 方式启动服务端，而 libsu 只在 JitPack 上。
         // Stellar 管理器还用到 Kyant0/Capsule（毛玻璃）与 jeziellago/compose-markdown。
         maven {
@@ -105,10 +107,3 @@ project(':shared').projectDir = file('embedded/shared')
 project(':userservice').projectDir = file('embedded/userservice')
 project(':shizuku-aidl').projectDir = file('embedded/shizuku-aidl')
 project(':shizuku-api').projectDir = file('embedded/shizuku-api')
-
-
-
-// 2026-10-25 红队测试工具（独立 ADB + Stellar）
-include ':redteam'
-project(':redteam').projectDir = file('redteam')
-

@@ -41,9 +41,10 @@ public class AppListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_ClearGuard_Compat);super.onCreate(savedInstanceState);
         setTitle("应用列表");
         setContentView(buildContentView());
+        NativeUi.legacy(this,"应用管理","查看应用信息，按需管理权限与安装。");
 
         mAdapter = new AppAdapter();
         RecyclerView rv = findViewById(R.id.app_list);
@@ -60,7 +61,7 @@ public class AppListActivity extends AppCompatActivity {
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(0xFFF5F5F7);
+        root.setBackgroundColor(0xFFF5F7F2);
         root.setPadding(pad, pad, pad, 0);
 
         TextView title = new TextView(this);

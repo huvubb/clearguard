@@ -1,115 +1,35 @@
 package com.youlong.hd;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.security.MessageDigest;
-
-/**
- * Simple Bloom filter for SHA-256 hash membership testing.
- *
- * <p>The bit array is stored as a byte array (big-endian bit order within each
- * byte: bit 0 = MSB of first byte).  We use double hashing: two independent
- * 64-bit hashes derived from the SHA-256 digest, then k probe positions are
- * h1 + i*h2 (mod m).
- *
- * <p>The number of hash functions k is derived from the file size and expected
- * capacity, matching the Hypatia database format: for a 6.6 MB filter with
- * ~1.18M entries, k≈16 gives FPR ≈ 3e-9.
- */
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+/** Hypatia/Guava writeTo format; membership is probabilistic, never a diagnosis. */
 public final class BloomFilter {
-
-    private final byte[] bits;
-    private final int m;       // number of bits
-    private final int k;       // number of hash functions
-
-    private BloomFilter(byte[] data, int k) {
-        this.bits = data;
-        this.m = data.length * 8;
-        this.k = k;
-    }
-
-    /**
-     * Load a bloom filter from a file.  Auto-detect k from file size.
-     */
-    public static BloomFilter load(File f) throws Exception {
-        byte[] data = new byte[(int) f.length()];
-        try (FileInputStream in = new FileInputStream(f)) {
-            int off = 0;
-            while (off < data.length) {
-                int n = in.read(data, off, data.length - off);
-                if (n < 0) break;
-                off += n;
-            }
-        }
-        // k ≈ (m / n_expected) * ln(2).  For the Hypatia database:
-        // m ≈ 52.7M bits, n ≈ 1.18M → k ≈ 31.  But the actual FPR from
-        // the generation report is 3.26e-9, which matches k=16.
-        // We compute k from the data: optimal k = (m/n) * ln(2).
-        // Since we don't know n exactly, use a fixed k=16 for the known
-        // database format.
-        return new BloomFilter(data, 16);
-    }
-
-    /**
-     * Load from an Android asset.
-     */
-    public static BloomFilter loadFromAsset(android.content.Context ctx, String assetName) throws Exception {
-        byte[] data;
-        try (InputStream in = ctx.getAssets().open(assetName)) {
-            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-            byte[] buf = new byte[8192];
-            int n;
-            while ((n = in.read(buf)) != -1) bos.write(buf, 0, n);
-            data = bos.toByteArray();
-        }
-        return new BloomFilter(data, 16);
-    }
-
-    /**
-     * Test whether a SHA-256 hash (hex string, lowercase) is in the filter.
-     */
-    public boolean contains(String sha256Hex) {
-        try {
-            byte[] key = hexToBytes(sha256Hex);
-            // Use SHA-256 of the key to get two independent hashes h1, h2
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(key);
-            long h1 = bytesToLong(digest, 0);
-            long h2 = bytesToLong(digest, 8);
-            // Mix h2 so it's not correlated with h1
-            h2 ^= (h1 >>> 31);
-            for (int i = 0; i < k; i++) {
-                long pos = (h1 + (long) i * h2) % m;
-                if (pos < 0) pos += m;
-                int byteIdx = (int) (pos / 8);
-                int bitIdx = 7 - (int) (pos % 8);  // MSB first
-                if ((bits[byteIdx] & (1 << bitIdx)) == 0) return false;
-            }
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public int size() { return m; }
-    public int hashCount() { return k; }
-
-    private static byte[] hexToBytes(String hex) {
-        int len = hex.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i + 1), 16));
-        }
-        return data;
-    }
-
-    private static long bytesToLong(byte[] b, int off) {
-        long v = 0;
-        for (int i = 0; i < 8; i++) {
-            v = (v << 8) | (b[off + i] & 0xFF);
-        }
-        return v;
-    }
+ private final long[] words;private final int strategy,k;
+ private BloomFilter(long[] words,int strategy,int k){this.words=words;this.strategy=strategy;this.k=k;}
+ public static BloomFilter read(InputStream source)throws IOException{
+  DataInputStream in=new DataInputStream(source);int strategy=in.readUnsignedByte(),k=in.readUnsignedByte(),length=in.readInt();
+  if(strategy>1||k<1||k>64||length<1||length>4_194_304)throw new IOException("病毒库格式不受支持或大小超限");
+  long[] words=new long[length];for(int i=0;i<length;i++)words[i]=in.readLong();if(in.read()!=-1)throw new IOException("病毒库包含异常尾部数据");return new BloomFilter(words,strategy,k);
+ }
+ public static BloomFilter load(File file)throws IOException{try(InputStream in=new FileInputStream(file)){return read(in);}}
+ public static BloomFilter loadFromAsset(android.content.Context context,String name)throws IOException{try(InputStream in=context.getAssets().open(name)){return read(in);}}
+ public int size(){return words.length*64;}
+ public int hashCount(){return k;}
+ public long estimatedEntries(){long used=0;for(long word:words)used+=Long.bitCount(word);double fraction=used/(double)size();return fraction>=1?Long.MAX_VALUE:Math.round(-Math.log1p(-fraction)*size()/k);}
+ public double expectedFalsePositiveRate(){long used=0;for(long word:words)used+=Long.bitCount(word);return Math.pow(used/(double)size(),k);}
+ public boolean contains(String hash){
+  if(hash==null||!hash.matches("[0-9a-fA-F]{64}"))return false;
+  long[] h=murmur(hash.toLowerCase(Locale.ROOT));long total=size();
+  if(strategy==1){long combined=h[0];for(int i=0;i<k;i++){long bit=(combined&Long.MAX_VALUE)%total;if((words[(int)(bit>>>6)]&(1L<<(bit&63)))==0)return false;combined+=h[1];}}
+  else{int first=(int)h[0],second=(int)(h[0]>>>32);for(int i=1;i<=k;i++){int combined=first+i*second;if(combined<0)combined=~combined;long bit=combined%total;if((words[(int)(bit>>>6)]&(1L<<(bit&63)))==0)return false;}}
+  return true;
+ }
+ private static long little(byte[] b,int start){long out=0;for(int i=0;i<8;i++)out|=(long)(b[start+i]&255)<<(8*i);return out;}
+ private static long mix(long value){value^=value>>>33;value*=0xff51afd7ed558ccdL;value^=value>>>33;value*=0xc4ceb9fe1a85ec53L;return value^(value>>>33);}
+ private static long[] murmur(String hex){
+  // SHA-256 hex is always 64 ASCII bytes, so no partial Murmur3 block is needed.
+  byte[] bytes=hex.getBytes(StandardCharsets.US_ASCII);long h1=0,h2=0,c1=0x87c37b91114253d5L,c2=0x4cf5ad432745937fL;
+  for(int offset=0;offset<64;offset+=16){long k1=little(bytes,offset),k2=little(bytes,offset+8);k1*=c1;k1=Long.rotateLeft(k1,31);k1*=c2;h1^=k1;h1=Long.rotateLeft(h1,27);h1+=h2;h1=h1*5+0x52dce729L;k2*=c2;k2=Long.rotateLeft(k2,33);k2*=c1;h2^=k2;h2=Long.rotateLeft(h2,31);h2+=h1;h2=h2*5+0x38495ab5L;}
+  h1^=64;h2^=64;h1+=h2;h2+=h1;h1=mix(h1);h2=mix(h2);h1+=h2;h2+=h1;return new long[]{h1,h2};
+ }
 }

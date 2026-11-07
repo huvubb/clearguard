@@ -200,7 +200,7 @@ public class ForegroundService extends Service {
         return sp.getBoolean("protect_on", false)
                 || sp.getBoolean("shake_trigger_on", false)
                 || sp.getBoolean("volume_trigger_on", false)
-                || sp.getBoolean("auto_block_on", true);
+                || sp.getBoolean("auto_block_on", false);
     }
 
     /** 主进程 PID（com.youlong.hd，不含 :guard 后缀），找不到返回 -1 */
