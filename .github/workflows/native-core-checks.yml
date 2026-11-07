@@ -15,7 +15,7 @@ jobs:
         run: |
           mkdir -p work/checks
           javac -encoding UTF-8 -d work/checks app/src/main/java/com/youlong/hd/{RansomwareDetector,CacheCleaner,ShellProcessWait,ScriptGuard,TerminalCommand,SiteDomainPolicy,DnsPacket,ExactHashIndex}.java tests/{RansomwareDetectorCheck,CacheCleanerCheck,ShellProcessWaitCheck,ScriptGuardCheck,TerminalCommandCheck,SiteFilterCheck,ExactHashIndexCheck}.java
-          for check in RansomwareDetectorCheck CacheCleanerCheck ShellProcessWaitCheck ScriptGuardCheck TerminalCommandCheck SiteFilterCheck; do
+          for check in RansomwareDetectorCheck CacheCleanerCheck com.youlong.hd.ShellProcessWaitCheck ScriptGuardCheck TerminalCommandCheck SiteFilterCheck; do
             java -ea -Djava.io.tmpdir=work -cp work/checks "$check"
           done
 
