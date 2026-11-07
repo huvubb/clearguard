@@ -189,8 +189,8 @@ android {
         applicationId "com.youlong.hd"
         minSdk 24
         targetSdk 37
-        versionCode 1234567994
-        versionName "2.0.0"
+        versionCode 1234567995
+        versionName "2.5"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

@@ -1,6 +1,6 @@
-# ClearGuard 2.0.0 实现状态
+# ClearGuard 2.5 实现状态
 
-本轮交付为 ../ClearGuard-2.0.0-release.apk，Release APK（versionCode 1234567994），使用原有发布证书签名。Debug 仅用于保留现有测试安装的数据，不能和不同签名的 Release 互相覆盖。签名私钥与密码不在仓库中。
+本轮交付为 ../ClearGuard-2.5-release.apk，Release APK（versionCode 1234567995），使用原有发布证书签名。Debug 仅用于保留现有测试安装的数据，不能和不同签名的 Release 互相覆盖。签名私钥与密码不在仓库中。
 
 ## 本轮修复
 
@@ -28,11 +28,11 @@
 6. 危险脚本预检查、CMD／PowerShell 转译、DNS 报文与域名边界。
 7. Shizuku Process 运行中／退出状态契约（模拟远程接口，不能替代设备 Binder 验证）。
 
-Debug 和 Release 已完整构建通过，最后一次 Release 构建 259 项任务、4 分 14 秒，无编码编译错误。
+Debug 和 Release 已完整构建通过，最后一次 Release 构建 259 项任务、3 分 56 秒，无编码编译错误。
 
-最终 Release：69,547,673 字节；versionName 2.0.0，versionCode 1234567994，ARM64／ARM32；未设置 debuggable（默认 false），v2／v3 验签通过，ZIP 完整性与 zipalign 检查通过。已核对精确指标、Bloom 资产与当前源码一致，并包含 ARM64 GGUF 引擎及 ESET 许可证。
+最终 Release：69,547,673 字节；versionName 2.5，versionCode 1234567995，ARM64／ARM32；未设置 debuggable（默认 false），v2／v3 验签通过，ZIP 完整性与 zipalign 检查通过。已核对精确指标、Bloom 资产与当前源码一致，并包含 ARM64 GGUF 引擎及 ESET 许可证。
 
-APK SHA-256：a12bc9174611e957f028ba1dfb7600f82631faccdcdd9862f69d13178ad0e24b。
+APK SHA-256：fb9ccf9239caee3ad6e3144d9a6cb8681dd35fc3dc297350788a9c8660404f00。
 
 发布证书 SHA-256：bd9f53af0456549e1c9cfbdb2da8f8ee62412cd21d47d9331875fc65701dee1c，与原有发布证书一致。
 
