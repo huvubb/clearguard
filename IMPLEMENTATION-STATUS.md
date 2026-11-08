@@ -63,6 +63,8 @@ JDK 21、Gradle 8.14、Android API 37、Build Tools 36、NDK 26.1 编译器与�
 
 元数据、地址校验及下载内容校验的无害主机测试通过。实际 DownloadManager 断网续传、进程被杀、厂商通知、安装授权返回及覆盖安装流程仍需真机验收。
 
-2.5.1 Release 已完整构建（259 项任务，7 分 8 秒），原发布证书 v2/v3 验签、ZIP、zipalign、版本号和非 Debug 标志检查通过。更新校验主机测试及接收器／FileProvider 路径检查通过；当前无 ADB 设备，尚未真机验收。
+2.5.1 Release 已完整构建（259 项任务，5 分 25 秒），原发布证书 v2/v3 验签、ZIP、zipalign、版本号和非 Debug 标志检查通过。更新校验主机测试及接收器／FileProvider 路径检查通过；当前无 ADB 设备，尚未真机验收。
 
-2.5.1 APK SHA-256：51ed363ece58fe5a86081f4cb51f7c8133f3fa0b1f40198fa894d82e6f0a0d9e。
+2.5.1 APK SHA-256：1937b57ad79ecfad7931dea29b174b47670f21bdbec555fa63d464bce21c13cd。
+
+已合并远端 Android Lint／旧 API 兼容修复，合并后的八组核心检查及 Release 构建通过。
