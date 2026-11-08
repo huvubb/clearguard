@@ -2,4 +2,5 @@
 <paths>
     <files-path name="image_provider_images" path="image_provider/" />
     <cache-path name="cache_apk" path="." />
+    <files-path name="verified_update" path="updates/" />
 </paths>

@@ -14,8 +14,8 @@ jobs:
       - name: Compile and check security decisions
         run: |
           mkdir -p work/checks
-          javac -encoding UTF-8 -d work/checks app/src/main/java/com/youlong/hd/{RansomwareDetector,CacheCleaner,ScriptGuard,TerminalCommand,SiteDomainPolicy,DnsPacket,ExactHashIndex}.java tests/{RansomwareDetectorCheck,CacheCleanerCheck,ScriptGuardCheck,TerminalCommandCheck,SiteFilterCheck,ExactHashIndexCheck}.java
-          for check in RansomwareDetectorCheck CacheCleanerCheck ScriptGuardCheck TerminalCommandCheck SiteFilterCheck; do
+          javac -encoding UTF-8 -d work/checks app/src/main/java/com/youlong/hd/{RansomwareDetector,CacheCleaner,ScriptGuard,TerminalCommand,SiteDomainPolicy,DnsPacket,ExactHashIndex,UpdateRelease}.java tests/{RansomwareDetectorCheck,CacheCleanerCheck,ScriptGuardCheck,TerminalCommandCheck,SiteFilterCheck,ExactHashIndexCheck,UpdateReleaseCheck}.java
+          for check in RansomwareDetectorCheck CacheCleanerCheck ScriptGuardCheck TerminalCommandCheck SiteFilterCheck UpdateReleaseCheck; do
             java -ea -Djava.io.tmpdir=work -cp work/checks "$check"
           done
 
