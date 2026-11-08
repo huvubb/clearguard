@@ -44,7 +44,7 @@ public class RuntimeLogActivity extends Activity {
     @Override protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.Theme_ClearGuard_Native);super.onCreate(savedInstanceState);
         NativeUi.Page page=new NativeUi.Page(this,"运行记录","看清设备上发生过的处理过程。","显示本机运行事件的最近 600 行，每两秒刷新一次。不自动上传。清空只删除本机运行日志，不影响应用配置。");
-        LinearLayout records=page.section("最近事件");scrollView=new ScrollView(this);LinearLayout inner=new LinearLayout(this);inner.setOrientation(1);logView=new TextView(this);logView.setTypeface(Typeface.MONOSPACE);NativeUi.report(this,inner,logView,true);scrollView.addView(inner);records.addView(scrollView,new LinearLayout.LayoutParams(-1,dp(380)));
+        LinearLayout records=page.section("最近事件");scrollView=new ScrollView(this);LinearLayout inner=new LinearLayout(this);inner.setOrientation(LinearLayout.VERTICAL);logView=new TextView(this);logView.setTypeface(Typeface.MONOSPACE);NativeUi.report(this,inner,logView,true);scrollView.addView(inner);records.addView(scrollView,new LinearLayout.LayoutParams(-1,dp(380)));
         LinearLayout actions=page.section("记录管理");NativeUi.action(this,actions,"刷新记录",()->refresh(true),false);NativeUi.action(this,actions,"清空运行日志",()->new android.app.AlertDialog.Builder(this).setTitle("清空本机运行日志？").setMessage("删除后无法恢复，不影响其他应用数据。").setNegativeButton("取消",null).setPositiveButton("清空",(d,w)->{File file=RuntimeEventLog.file(this);if(file.exists()&&!file.delete()){Toast.makeText(this,"无法清空日志，请稍后重试",Toast.LENGTH_SHORT).show();return;}RuntimeEventLog.log(this,"APP","运行日志已清空");refresh(true);}).show(),false);page.show();refresh(true);handler.postDelayed(refreshTask,2000);
     }
 

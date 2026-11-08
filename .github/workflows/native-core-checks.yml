@@ -1,23 +1,23 @@
-name: Native security core checks
-on: [push, pull_request, workflow_dispatch]
-permissions:
-  contents: read
-jobs:
-  checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '21'
-      - name: Compile and check security decisions
-        run: |
-          mkdir -p work/checks
-          javac -encoding UTF-8 -d work/checks app/src/main/java/com/youlong/hd/{RansomwareDetector,CacheCleaner,ScriptGuard,TerminalCommand,SiteDomainPolicy,DnsPacket,ExactHashIndex,UpdateRelease}.java tests/{RansomwareDetectorCheck,CacheCleanerCheck,ScriptGuardCheck,TerminalCommandCheck,SiteFilterCheck,ExactHashIndexCheck,UpdateReleaseCheck}.java
-          for check in RansomwareDetectorCheck CacheCleanerCheck ScriptGuardCheck TerminalCommandCheck SiteFilterCheck UpdateReleaseCheck; do
-            java -ea -Djava.io.tmpdir=work -cp work/checks "$check"
-          done
-
-      - name: Check bundled exact signatures
-        run: java -ea -cp work/checks ExactHashIndexCheck app/src/main/assets/apk-signatures.tsv
+name: Native security core checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Compile and check security decisions
+        run: |
+          mkdir -p work/checks
+          javac -encoding UTF-8 -d work/checks app/src/main/java/com/youlong/hd/{RansomwareDetector,CacheCleaner,ShellProcessWait,ScriptGuard,TerminalCommand,SiteDomainPolicy,DnsPacket,ExactHashIndex,UpdateRelease}.java tests/{RansomwareDetectorCheck,CacheCleanerCheck,ShellProcessWaitCheck,ScriptGuardCheck,TerminalCommandCheck,SiteFilterCheck,ExactHashIndexCheck,UpdateReleaseCheck}.java
+          for check in RansomwareDetectorCheck CacheCleanerCheck com.youlong.hd.ShellProcessWaitCheck ScriptGuardCheck TerminalCommandCheck SiteFilterCheck UpdateReleaseCheck; do
+            java -ea -Djava.io.tmpdir=work -cp work/checks "$check"
+          done
+
+      - name: Check bundled exact signatures
+        run: java -ea -cp work/checks ExactHashIndexCheck app/src/main/assets/apk-signatures.tsv

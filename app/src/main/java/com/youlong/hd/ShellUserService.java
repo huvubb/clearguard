@@ -36,7 +36,7 @@ public final class ShellUserService extends IClearGuardShell.Stub {
   @Override public int waitFor(){check();try{return process.waitFor();}catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IllegalStateException("等待被中断",interrupted);}}
   @Override public int exitValue(){check();return process.exitValue();}
   @Override public boolean alive(){check();try{process.exitValue();return false;}catch(IllegalThreadStateException running){return true;}}
-  @Override public boolean waitForTimeout(long timeout,String unit){check();try{return process.waitFor(timeout,TimeUnit.valueOf(unit));}catch(InterruptedException interrupted){Thread.currentThread().interrupt();return false;}}
+  @Override public boolean waitForTimeout(long timeout,String unit){check();try{return ShellProcessWait.waitFor(process,timeout,TimeUnit.valueOf(unit));}catch(InterruptedException interrupted){Thread.currentThread().interrupt();return false;}}
   @Override public void destroy(){check();close();}
   private synchronized void close(){process.destroy();try{owner.unlinkToDeath(death,0);}catch(Exception ignored){}for(ParcelFileDescriptor[] pair:new ParcelFileDescriptor[][]{input,output,error})for(ParcelFileDescriptor fd:pair)try{fd.close();}catch(IOException ignored){}}
  }
