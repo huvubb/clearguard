@@ -1,189 +1,13 @@
 plugins {
     id 'com.android.application'
-    id 'com.chaquo.python'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.compose'
-    // ======================================================================
-    
-    // ----------------------------------------------------------------------
-    
-    //     android.app.ActivityManagerHidden
-    
-    
-    //     android.app.ActivityManager
-    
-    //     java.lang.NoClassDefFoundError: android.app.ActivityManagerHidden
-    //     at roro.stellar.server.binder.BinderSender.register
-    
-    //
-    
-    
-    
-    
-    id 'dev.rikka.tools.refine'
-    
-    id 'com.google.devtools.ksp'
-}
-
-// --------------------------------------------------------------------------
-
-
-//
-
-
-
-
-//
-
-
-//
-
-
-// --------------------------------------------------------------------------
-
-// ==========================================================================
-
-// --------------------------------------------------------------------------
-
-//     org.lsposed.libcxx:libcxx         → cxx::cxx        (NDK libc++)
-//     io.github.vvb2060.ndk:boringssl   → boringssl::crypto_static
-
-
-
-
-
-
-
-//
-
-
-
-
-// ==========================================================================
-
-
-//        Unable to make progress running work. There are items queued for
-//        execution but none of them can be started
-
-
-
-
-def prefabRoot = new File(project.projectDir, '.prefab')
-def stellarLibcxxPrefabDir = new File(prefabRoot, 'libcxx')
-def stellarBoringsslPrefabDir = new File(prefabRoot, 'boringssl')
-
-tasks.register('extractPrefabPackages') {
-    description = '把 libcxx / boringssl 的 prefab 内容解压到 buildDir/prefab（替代 AGP prefab）'
-    group = 'build'
-
-    
-    
-    def cfg = configurations.detachedConfiguration(
-            dependencies.create('org.lsposed.libcxx:libcxx:27.0.12077973'),
-            dependencies.create('io.github.vvb2060.ndk:boringssl:20250114'))
-
-    inputs.files(cfg)
-    outputs.dir(prefabRoot)
-
-    doLast {
-        prefabRoot.deleteDir()
-        stellarLibcxxPrefabDir.mkdirs()
-        stellarBoringsslPrefabDir.mkdirs()
-
-        def targets = [
-                (stellarLibcxxPrefabDir)   : 'libcxx-',
-                (stellarBoringsslPrefabDir): 'boringssl-'
-        ]
-        cfg.files.each { aar ->
-            targets.each { dir, prefix ->
-                if (aar.name.startsWith(prefix)) {
-                    
-                    
-                    
-                    
-                    
-                    new java.util.zip.ZipInputStream(new java.io.FileInputStream(aar)).withCloseable { zis ->
-                        def entry
-                        while ((entry = zis.nextEntry) != null) {
-                            def name = entry.name
-                            if (!entry.isDirectory() && name.startsWith('prefab/')) {
-                                def rel = name.substring('prefab/'.length())
-                                if (rel) {
-                                    def out = new File(dir, rel)
-                                    out.parentFile.mkdirs()
-                                    out.withOutputStream { os -> zis.transferTo(os) }
-                                }
-                            }
-                            zis.closeEntry()
-                        }
-                    }
-                }
-            }
-        }
-
-        
-        def checks = [
-                new File(stellarLibcxxPrefabDir, 'modules/cxx/include/vector'),
-                new File(stellarLibcxxPrefabDir, 'modules/cxx/libs/android.arm64-v8a/libcxx.a'),
-                new File(stellarBoringsslPrefabDir, 'modules/crypto_static/include/openssl/aead.h'),
-                new File(stellarBoringsslPrefabDir, 'modules/crypto_static/libs/android.arm64-v8a/libcrypto_static.a')
-        ]
-        checks.each { c ->
-            if (!c.exists()) {
-                throw new GradleException("prefab 解压不完整，缺少：${c}")
-            }
-        }
-        println "prefab 已解压到：${prefabRoot}"
-    }
-}
-
-
-//
-
-
-
-
-
-//        :app:externalNativeBuildCleanDebug FAILED
-//        CMake Error at stellar/CMakeLists.txt:89 (message):
-
-tasks.configureEach { t ->
-    if (t.name.startsWith('configureCMake')
-            || t.name.startsWith('buildCMake')
-            || t.name.startsWith('externalNativeBuildClean')) {
-        t.dependsOn 'extractPrefabPackages'
-    }
-}
-
-// ==========================================================================
-
-// --------------------------------------------------------------------------
-
-
-
-
-// ==========================================================================
-def hardeningDir = rootProject.file('hardening')
-def dictRulesFile = new File(buildDir, 'hardening/obfuscation-dict.pro')
-if (hardeningDir.exists()) {
-    dictRulesFile.parentFile.mkdirs()
-    def memberDict = new File(hardeningDir, 'member-dict.txt').absolutePath.replace('\\', '/')
-    def classDict = new File(hardeningDir, 'class-dict.txt').absolutePath.replace('\\', '/')
-    dictRulesFile.text = """\
-# 自动生成，请勿手改（由 app/build.gradle 生成）
--obfuscationdictionary '${memberDict}'
--classobfuscationdictionary '${classDict}'
-"""
 }
 
 android {
     namespace 'com.youlong.hd'
     compileSdk 37
     buildToolsVersion "36.0.0"
-    
-    
-    
-    ndkVersion (project.findProperty("clearguard.ndkVersion") ?: "29.0.13113456")
 
     defaultConfig {
         applicationId "com.youlong.hd"
@@ -194,128 +18,24 @@ android {
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        
-        
-        ndk {
-            abiFilters 'arm64-v8a', 'armeabi-v7a'
-        }
-        externalNativeBuild {
-            cmake {
-                cppFlags '-std=c++11'
-                
-                
-                
-                
-                
-                //
-                
-                
-                arguments '-DANDROID_STL=none',
-                        "-DSTELLAR_LIBCXX_PREFAB_DIR=${stellarLibcxxPrefabDir}",
-                        "-DSTELLAR_BORINGSSL_PREFAB_DIR=${stellarBoringsslPrefabDir}"
-                if (project.hasProperty('clearguard.linker')) {
-                    arguments "-DCMAKE_EXE_LINKER_FLAGS=-Wl,-z,max-page-size=16384 --ld-path=${project.property('clearguard.linker')}",
-                            "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384 --ld-path=${project.property('clearguard.linker')}"
-                }
-            }
-        }
     }
-
-    
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-            version "3.22.1"
-        }
-    }
-
-    // ========================================================================
-    
-    // ------------------------------------------------------------------------
-    
-    
-    
-    
-    //
-    
-    
-    
-    
-    
-    //
-    
-    
-    // ========================================================================
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', dictRulesFile
-            
-            
-            ndk {
-                debugSymbolLevel 'none'
-            }
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            
-        }
-    }
-
-    // ======================================================================
-    
-    // ----------------------------------------------------------------------
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    // ======================================================================
-    aaptOptions {
-        noCompress 'dex'
-    }
-
-    // ======================================================================
-    
-    // ----------------------------------------------------------------------
-    
-    
-    
-    
-    
-    
-    // ======================================================================
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging true
-        }
-        
-        
-        
-        
-        resources {
-            excludes += ['META-INF/versions/9/OSGI-INF/MANIFEST.MF']
         }
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
-        
-        
         encoding 'UTF-8'
     }
 
@@ -327,141 +47,25 @@ android {
         aidl = true
         buildConfig = true
         compose = true
-        
-        
-        
-        
-        //        Error while executing process ...\prefab_command.bat
-        
-        
-        
-        
-        
-        
         prefab = false
     }
 
     lint {
-        
-        
-        
-        
         baseline = file('lint-baseline.xml')
         checkReleaseBuilds false
-    }
-
-    
-    applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            def buildType = variant.buildType.name
-            output.outputFileName = "app-${buildType}-${new Date().format('yyyyMMdd-HHmmss')}.apk"
-        }
     }
 }
 
 dependencies {
-    
-    
-    
-    
-    
-    
-    
     implementation 'androidx.documentfile:documentfile:1.0.1'
-
-    
-    
-    //     modules { module('androidx.appcompat:appcompat') {
-    //                 replacedBy('dev.rikka.rikkax.appcompat:appcompat', ...) } }
-    
-    
-    
-    
-    
-    
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.multidex:multidex:2.0.1'
 
-// ==========================================================================
+    implementation project(':shizuku-aidl')
+    implementation project(':shizuku-api')
 
-// --------------------------------------------------------------------------
-
-
-//
-
-
-
-
-
-//
-
-
-// ==========================================================================
-implementation project(':api')
-implementation project(':provider')
-implementation project(':server')
-
-
-
-implementation project(':userservice')
-
-
-
-
-
-
-
-implementation project(':shizuku-aidl')
-implementation project(':shizuku-api')
-
-
-
-compileOnly 'dev.rikka.hidden:stub:4.4.0'
-
-implementation 'dev.rikka.hidden:compat:4.4.0'
-
-
-//
-
-
-
-implementation project(':manager')
-
-
-
-
-
-
-
-
-
-
-implementation 'org.lsposed.libcxx:libcxx:27.0.12077973'
-implementation 'io.github.vvb2060.ndk:boringssl:20250114'
-implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:6.1'
-
-
-
-//
-
-
-
-
-
-
-
-implementation 'org.conscrypt:conscrypt-android:2.5.2'
-
-    // ======================================================================
-    // Jetpack Compose / AndroidX
-    // ----------------------------------------------------------------------
-    
-    
-    
-    
-    // ======================================================================
     implementation platform('androidx.compose:compose-bom:2026.01.01')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-graphics'
@@ -473,9 +77,6 @@ implementation 'org.conscrypt:conscrypt-android:2.5.2'
     implementation 'androidx.activity:activity-compose:1.12.3'
     implementation 'androidx.navigation:navigation-compose:2.9.7'
 
-    
-    
-    
     implementation 'androidx.core:core-ktx:1.17.0'
     implementation 'androidx.browser:browser:1.8.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
@@ -490,40 +91,8 @@ implementation 'org.conscrypt:conscrypt-android:2.5.2'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
     implementation 'com.google.code.gson:gson:2.13.1'
-    implementation 'com.github.topjohnwu.libsu:core:6.0.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-}
-
-
-// ==========================================================================
-
-// --------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-//
-
-
-
-
-//
-
-
-
-
-
-// ==========================================================================
-
-chaquopy {
-    defaultConfig {
-        version = "3.11"
-    }
 }
